@@ -58,16 +58,16 @@ const AdminDashboard = () => {
         api.get("/admin/fast-moving-restaurants"),
         api.get("/admin/user-distribution"),
         api.get("/admin/analytics"),
-        api.get("/admin/revenue-trend"), // make sure backend route exists
+        api.get("/admin/revenue-trend"),
       ]);
 
-      setUsers(u.data);
-      setRestaurants(r.data);
-      setOrders(o.data);
-      setFastMoving(f.data);
-      setUserChart(uc.data);
-      setStats(a.data);
-      setRevenueTrend(rev.data);
+      setUsers(u.data || []);
+      setRestaurants(r.data || []);
+      setOrders(o.data || []);
+      setFastMoving(f.data || []);
+      setUserChart(uc.data || null);
+      setStats(a.data || {});
+      setRevenueTrend(rev.data || []);
     } catch (err) {
       console.error("Admin dashboard load error", err);
       alert("Failed to load admin dashboard data");
@@ -118,7 +118,7 @@ const AdminDashboard = () => {
   const pendingSellers = sellers.filter((s) => s.status === "PENDING");
 
   const renderStatusBadge = (status) => (
-    <span className={`status-badge ${status.toLowerCase()}`}>{status}</span>
+    <span className={`status-badge ${status?.toLowerCase()}`}>{status}</span>
   );
 
   return (
@@ -202,25 +202,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* ================= REVENUE TREND ================= */}
-      <div className="chart-box">
-        <h2>Monthly Revenue Trend</h2>
-        <Line
-          data={{
-            labels: revenueTrend.map((r) => r.month),
-            datasets: [
-              {
-                label: "Revenue",
-                data: revenueTrend.map((r) => r.revenue),
-                borderColor: "#16a34a",
-                backgroundColor: "rgba(22,163,74,0.2)",
-                tension: 0.4,
-              },
-            ],
-          }}
-        />
-      </div>
-
       {/* ================= TABS ================= */}
       <div className="tabs">
         {[
@@ -247,24 +228,39 @@ const AdminDashboard = () => {
           <>
             <h2>Pending Seller Requests</h2>
 
+            {pendingSellers.length === 0 && <p>No pending sellers.</p>}
+
             {pendingSellers.map((s) => (
               <div key={s.id} className="row">
                 <span>
                   {s.email} {renderStatusBadge(s.status)}
                 </span>
 
-                <button
-                  disabled={approvingId === s.id}
-                  onClick={async () => {
-                    setApprovingId(s.id);
-                    await api.put(`/admin/users/${s.id}/approve`);
-                    setSuccessMsg("Seller approved successfully");
-                    setApprovingId(null);
-                    loadAll();
-                  }}
-                >
-                  {approvingId === s.id ? "Approving..." : "Approve"}
-                </button>
+                <div>
+                  <button
+                    disabled={approvingId === s.id}
+                    onClick={async () => {
+                      setApprovingId(s.id);
+                      await api.put(`/admin/users/${s.id}/approve`);
+                      setSuccessMsg("Seller approved successfully");
+                      setApprovingId(null);
+                      loadAll();
+                    }}
+                  >
+                    {approvingId === s.id ? "Approving..." : "Approve"}
+                  </button>
+
+                  <button
+                    style={{ marginLeft: "10px", background: "#dc2626" }}
+                    onClick={async () => {
+                      await api.put(`/admin/users/${s.id}/reject`);
+                      setSuccessMsg("Seller rejected successfully");
+                      loadAll();
+                    }}
+                  >
+                    Reject
+                  </button>
+                </div>
               </div>
             ))}
           </>
@@ -358,6 +354,25 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* ================= REVENUE TREND ================= */}
+      <div className="chart-box">
+        <h2>Monthly Revenue Trend</h2>
+        <Line
+          data={{
+            labels: revenueTrend.map((r) => r.month),
+            datasets: [
+              {
+                label: "Revenue",
+                data: revenueTrend.map((r) => r.revenue),
+                borderColor: "#16a34a",
+                backgroundColor: "rgba(22,163,74,0.2)",
+                tension: 0.4,
+              },
+            ],
+          }}
+        />
       </div>
     </div>
   );

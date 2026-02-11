@@ -25,11 +25,14 @@ ChartJS.register(
 
 const SellerDashboard = () => {
   const [tab, setTab] = useState("OVERVIEW");
+
+  const [user, setUser] = useState(null);
   const [restaurant, setRestaurant] = useState(null);
   const [menu, setMenu] = useState([]);
   const [orders, setOrders] = useState([]);
   const [analytics, setAnalytics] = useState([]);
   const [forecast, setForecast] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -41,46 +44,112 @@ const SellerDashboard = () => {
     imageFile: null,
   });
 
+  /* ================= LOAD PROFILE ================= */
+
+  const loadProfile = async () => {
+    try {
+      const res = await api.get("/auth/me");
+      setUser(res.data);
+    } catch (err) {
+      console.error("Profile load error:", err);
+    }
+  };
+
   /* ================= LOAD DATA ================= */
 
   const loadAll = async () => {
-    const r = await api.get("/seller/restaurant");
-    const m = await api.get("/seller/menu");
-    const o = await api.get("/seller/orders");
-    const a = await api.get("/seller/analytics");
-    const f = await api.get("/seller/forecast");
+    try {
+      setLoading(true);
 
-    setRestaurant(r.data);
-    setMenu(m.data);
-    setOrders(o.data);
-    setAnalytics(a.data);
-    setForecast(f.data);
+      const [r, m, o, a, f] = await Promise.all([
+        api.get("/seller/restaurant"),
+        api.get("/seller/menu"),
+        api.get("/seller/orders"),
+        api.get("/seller/analytics"),
+        api.get("/seller/forecast"),
+      ]);
+
+      setRestaurant(r.data || null);
+      setMenu(m.data || []);
+      setOrders(o.data || []);
+      setAnalytics(a.data || []);
+      setForecast(f.data || []);
+    } catch (err) {
+      console.error("Seller dashboard load error:", err);
+      alert("Failed to load seller dashboard");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    loadAll();
+    const init = async () => {
+      await loadProfile();
+    };
+    init();
   }, []);
 
-  /* ================= DERIVED ================= */
+  useEffect(() => {
+    if (user?.status === "APPROVED") {
+      loadAll();
+    } else if (user) {
+      setLoading(false);
+    }
+  }, [user]);
+
+  /* ================= STATUS BLOCK ================= */
+
+  if (loading) {
+    return <div className="seller-page">Loading...</div>;
+  }
+
+  if (user?.status === "PENDING") {
+    return (
+      <div className="seller-page status-screen">
+        <h2>⏳ Account Pending Approval</h2>
+        <p>Your seller account is waiting for admin approval.</p>
+      </div>
+    );
+  }
+
+  if (user?.status === "REJECTED") {
+    return (
+      <div className="seller-page status-screen">
+        <h2>❌ Registration Rejected</h2>
+        <p>Your seller registration was rejected by admin.</p>
+      </div>
+    );
+  }
+
+  if (user?.status === "SUSPENDED") {
+    return (
+      <div className="seller-page status-screen">
+        <h2>🚫 Account Suspended</h2>
+        <p>Your account has been suspended. Please contact admin.</p>
+      </div>
+    );
+  }
+
+  /* ================= DERIVED VALUES ================= */
 
   const todayOrders = orders.filter(
-    (o) => new Date(o.created_at).toDateString() === new Date().toDateString(),
+    (o) =>
+      o.created_at &&
+      new Date(o.created_at).toDateString() === new Date().toDateString(),
   );
 
-  const totalRevenue = orders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+  const totalRevenue = orders.reduce(
+    (sum, o) => sum + Number(o.total_amount || 0),
+    0,
+  );
 
-  const lowStockItems = menu.filter((m) => m.stock <= 5);
+  const lowStockItems = menu.filter((m) => Number(m.stock) <= 5);
 
-  /* ================= MENU ================= */
+  /* ================= MENU HANDLERS ================= */
 
   const openAdd = () => {
     setEditingItem(null);
-    setMenuForm({
-      name: "",
-      price: "",
-      stock: "",
-      imageFile: null,
-    });
+    setMenuForm({ name: "", price: "", stock: "", imageFile: null });
     setShowModal(true);
   };
 
@@ -96,33 +165,49 @@ const SellerDashboard = () => {
   };
 
   const submitMenu = async () => {
-    const formData = new FormData();
-    formData.append("name", menuForm.name);
-    formData.append("price", menuForm.price);
-    formData.append("stock", menuForm.stock);
-    if (menuForm.imageFile) formData.append("image", menuForm.imageFile);
-
-    if (editingItem) {
-      await api.put(`/seller/menu/${editingItem.id}`, formData);
-    } else {
-      await api.post("/seller/menu", formData);
+    if (!menuForm.name || !menuForm.price || !menuForm.stock) {
+      alert("Please fill all fields");
+      return;
     }
 
-    setShowModal(false);
-    loadAll();
+    try {
+      const formData = new FormData();
+      formData.append("name", menuForm.name);
+      formData.append("price", menuForm.price);
+      formData.append("stock", menuForm.stock);
+      if (menuForm.imageFile) formData.append("image", menuForm.imageFile);
+
+      if (editingItem) {
+        await api.put(`/seller/menu/${editingItem.id}`, formData);
+      } else {
+        await api.post("/seller/menu", formData);
+      }
+
+      setShowModal(false);
+      loadAll();
+    } catch (err) {
+      console.error("Menu submit error:", err);
+      alert("Failed to save menu item");
+    }
   };
 
   const deleteMenuItem = async (id) => {
     if (!window.confirm("Delete this menu item?")) return;
-    await api.delete(`/seller/menu/${id}`);
-    loadAll();
+
+    try {
+      await api.delete(`/seller/menu/${id}`);
+      loadAll();
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete item");
+    }
   };
 
   /* ================= RENDER ================= */
 
   return (
     <div className="seller-page">
-      <h1>Seller Dashboard</h1>
+      <h1>{restaurant?.name || "Seller Dashboard"}</h1>
 
       <div className="tabs">
         {["OVERVIEW", "MENU", "ORDERS", "ANALYTICS", "FORECAST"].map((t) => (
@@ -136,33 +221,32 @@ const SellerDashboard = () => {
         ))}
       </div>
 
-      {/* ================= OVERVIEW ================= */}
       {tab === "OVERVIEW" && (
         <div className="seller-content">
-          <h2>{restaurant?.name}</h2>
-
           <div className="summary-grid">
             <div className="card">
               <span>Today’s Orders</span>
               <strong>{todayOrders.length}</strong>
             </div>
+
             <div className="card">
               <span>Total Revenue</span>
               <strong>Rs. {totalRevenue}</strong>
             </div>
+
             <div className="card">
               <span>Menu Items</span>
               <strong>{menu.length}</strong>
             </div>
+
             <div className="card">
-              <span>Low Stock Items</span>
+              <span>Low Stock</span>
               <strong>{lowStockItems.length}</strong>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= MENU ================= */}
       {tab === "MENU" && (
         <div className="seller-content">
           <div className="menu-header">
@@ -187,9 +271,9 @@ const SellerDashboard = () => {
                 <button className="primary-btn" onClick={() => openEdit(m)}>
                   Edit
                 </button>
+
                 <button
-                  className="primary-btn"
-                  style={{ background: "#dc2626" }}
+                  className="danger-btn"
                   onClick={() => deleteMenuItem(m.id)}
                 >
                   Delete
@@ -200,7 +284,6 @@ const SellerDashboard = () => {
         </div>
       )}
 
-      {/* ================= ORDERS ================= */}
       {tab === "ORDERS" && (
         <div className="seller-content">
           <h2>Orders</h2>
@@ -213,10 +296,14 @@ const SellerDashboard = () => {
                 className="status-select"
                 value={o.status}
                 onChange={async (e) => {
-                  await api.put(`/seller/orders/${o.id}/status`, {
-                    status: e.target.value,
-                  });
-                  loadAll();
+                  try {
+                    await api.put(`/seller/orders/${o.id}/status`, {
+                      status: e.target.value,
+                    });
+                    loadAll();
+                  } catch {
+                    alert("Failed to update order");
+                  }
                 }}
               >
                 <option value="PLACED">PLACED</option>
@@ -229,7 +316,6 @@ const SellerDashboard = () => {
         </div>
       )}
 
-      {/* ================= ANALYTICS ================= */}
       {tab === "ANALYTICS" && (
         <div className="seller-content">
           <Bar
@@ -247,7 +333,6 @@ const SellerDashboard = () => {
         </div>
       )}
 
-      {/* ================= FORECAST ================= */}
       {tab === "FORECAST" && (
         <div className="seller-content">
           <Line
@@ -259,6 +344,7 @@ const SellerDashboard = () => {
                   data: forecast.map((f) => f.orders),
                   borderColor: "#16a34a",
                   backgroundColor: "rgba(22,163,74,0.2)",
+                  tension: 0.4,
                 },
               ],
             }}
@@ -266,7 +352,6 @@ const SellerDashboard = () => {
         </div>
       )}
 
-      {/* ================= MODAL ================= */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -281,8 +366,8 @@ const SellerDashboard = () => {
             />
 
             <input
-              placeholder="Price"
               type="number"
+              placeholder="Price"
               value={menuForm.price}
               onChange={(e) =>
                 setMenuForm({ ...menuForm, price: e.target.value })
@@ -290,8 +375,8 @@ const SellerDashboard = () => {
             />
 
             <input
-              placeholder="Stock"
               type="number"
+              placeholder="Stock"
               value={menuForm.stock}
               onChange={(e) =>
                 setMenuForm({ ...menuForm, stock: e.target.value })

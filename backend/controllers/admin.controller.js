@@ -39,6 +39,29 @@ exports.approveSeller = async (req, res) => {
   }
 };
 
+/* ================= REJECT SELLER ================= */
+
+exports.rejectSeller = async (req, res) => {
+  try {
+    const sellerId = req.params.id;
+
+    const [result] = await pool.execute(
+      "UPDATE users SET status='REJECTED' WHERE id=? AND role='SELLER'",
+      [sellerId],
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "Seller not found" });
+
+    await logAdminAction(req.user.id, "Rejected Seller", sellerId);
+
+    res.json({ message: "Seller rejected successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Reject failed" });
+  }
+};
+
 /* ================= SUSPEND USER ================= */
 
 exports.suspendUser = async (req, res) => {

@@ -4,16 +4,85 @@
 
 .seller-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #020617, #0f172a);
-  color: #e5e7eb;
   padding: 30px;
   font-family: "Segoe UI", Arial, sans-serif;
+  transition: all 0.3s ease;
+}
+
+/* Dark Mode */
+.seller-page.dark {
+  background: linear-gradient(180deg, #020617, #0f172a);
+  color: #e5e7eb;
+}
+
+/* Light Mode */
+.seller-page.light {
+  background: linear-gradient(180deg, #f1f5f9, #e2e8f0);
+  color: #0f172a;
 }
 
 .seller-page h1 {
   font-size: 28px;
-  margin-bottom: 25px;
   font-weight: 600;
+}
+
+/* ================================================= */
+/* ================= HEADER ======================== */
+/* ================================================= */
+
+.seller-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.seller-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Toggle Button */
+.toggle-btn {
+  background: #334155;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background: #475569;
+}
+
+/* ================================================= */
+/* ================= LIVE ALERT ==================== */
+/* ================================================= */
+
+.live-alert {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+  padding: 12px 18px;
+  border-radius: 14px;
+  margin-bottom: 18px;
+  font-weight: 600;
+  animation: pulse 1.2s infinite;
+  box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* ================================================= */
@@ -28,39 +97,46 @@
 }
 
 .tabs button {
-  background: #1e293b;
+  background: rgba(30, 41, 59, 0.8);
   color: #e5e7eb;
   border: none;
   padding: 10px 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .tabs button.active {
   background: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
 }
 
 .tabs button:hover {
-  background: #334155;
+  transform: translateY(-2px);
 }
 
 /* ================================================= */
-/* ================= CONTENT AREA ================== */
+/* ================= GLASS CONTENT ================= */
 /* ================================================= */
 
-.seller-content {
-  background: #ffffff;
-  color: #020617;
-  padding: 25px;
-  border-radius: 18px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+.glass {
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Light mode glass */
+.seller-page.light .glass {
+  background: rgba(255, 255, 255, 0.7);
+  color: #0f172a;
 }
 
 /* ================================================= */
-/* ============== OVERVIEW / CARDS ================= */
+/* ================= SUMMARY CARDS ================= */
 /* ================================================= */
 
 .summary-grid {
@@ -74,9 +150,19 @@
   background: linear-gradient(135deg, #1e293b, #020617);
   color: #f9fafb;
   padding: 22px;
-  border-radius: 16px;
+  border-radius: 18px;
   text-align: center;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+}
+
+.seller-page.light .card {
+  background: linear-gradient(135deg, #ffffff, #e2e8f0);
+  color: #0f172a;
 }
 
 .card span {
@@ -91,69 +177,19 @@
   font-weight: 600;
 }
 
-/* ================================================= */
-/* ============ RESTAURANT IMAGE SLIDER ============= */
-/* ================================================= */
-
-.restaurant-slider {
-  display: flex;
-  gap: 14px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-  margin-bottom: 18px;
+/* Growth Badge */
+.growth {
+  font-size: 13px;
+  margin-top: 6px;
+  font-weight: 600;
 }
 
-.restaurant-slider::-webkit-scrollbar {
-  height: 6px;
+.growth.positive {
+  color: #22c55e;
 }
 
-.restaurant-slider::-webkit-scrollbar-thumb {
-  background: #c7d2fe;
-  border-radius: 6px;
-}
-
-.image-box {
-  position: relative;
-  min-width: 220px;
-  height: 140px;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-  flex-shrink: 0;
-}
-
-.image-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Remove image button */
-.remove-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: rgba(0, 0, 0, 0.65);
-  color: #ffffff;
-  border: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-size: 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.remove-btn:hover {
-  background: #dc2626;
-}
-
-/* Upload input (overview) */
-.seller-content input[type="file"] {
-  margin-top: 10px;
-  font-size: 14px;
+.growth.negative {
+  color: #ef4444;
 }
 
 /* ================================================= */
@@ -164,151 +200,31 @@
   background: #2563eb;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 10px;
+  padding: 9px 16px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
 .primary-btn:hover {
   background: #1d4ed8;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
-/* Danger button (delete) */
-.primary-btn.danger {
+.danger-btn {
   background: #dc2626;
-}
-
-.primary-btn.danger:hover {
-  background: #b91c1c;
-}
-
-/* ================================================= */
-/* ================= MENU ========================== */
-/* ================================================= */
-
-.menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.menu-card {
-  background: #f9fafb;
-  border-radius: 16px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
-}
-
-.menu-card img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
+  color: white;
+  border: none;
+  padding: 9px 16px;
   border-radius: 12px;
-  margin-bottom: 10px;
-}
-
-.menu-card h4 {
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.menu-card p {
-  font-size: 14px;
-  color: #374151;
-  margin-bottom: 6px;
-}
-
-.low-stock {
-  color: #991b1b;
-  font-weight: 600;
-}
-
-.status-available {
-  color: #166534;
-  font-weight: 600;
-}
-
-.status-unavailable {
-  color: #991b1b;
-  font-weight: 600;
-}
-
-.menu-card button {
-  margin-top: 8px;
-  width: 100%;
-}
-
-/* ================================================= */
-/* ================= ORDERS ======================== */
-/* ================================================= */
-
-.order-box {
-  background: #f9fafb;
-  color: #020617;
-  padding: 18px;
-  border-radius: 14px;
-  margin-bottom: 15px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
-}
-
-.order-box strong {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.order-box ul {
-  padding-left: 18px;
-  margin: 10px 0;
-}
-
-.order-box li {
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-/* Order status dropdown */
-.status-select {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  font-size: 13px;
-  margin-left: 6px;
   cursor: pointer;
-  background: #ffffff;
+  transition: all 0.25s ease;
 }
 
-.status-select:focus {
-  outline: none;
-  border-color: #2563eb;
-}
-
-/* ================================================= */
-/* ============ LOW STOCK ALERT ROW ================ */
-/* ================================================= */
-
-.row.warning {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 12px 15px;
-  border-radius: 12px;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  font-weight: 600;
+.danger-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
 }
 
 /* ================================================= */
@@ -316,7 +232,7 @@
 /* ================================================= */
 
 .seller-content canvas {
-  max-height: 320px;
+  max-height: 340px;
 }
 
 /* ================================================= */
@@ -325,36 +241,29 @@
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.65);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 999;
+  animation: fadeIn 0.25s ease;
 }
 
 .modal {
   background: white;
-  width: 360px;
-  padding: 25px;
-  border-radius: 18px;
+  width: 380px;
+  padding: 28px;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.modal h3 {
-  text-align: center;
-  margin-bottom: 10px;
-  font-weight: 600;
+  gap: 14px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
 }
 
 .modal input {
-  padding: 10px;
-  border-radius: 10px;
+  padding: 11px;
+  border-radius: 12px;
   border: 1px solid #d1d5db;
   font-size: 14px;
 }
@@ -364,24 +273,26 @@
   border-color: #2563eb;
 }
 
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
+/* ================================================= */
+/* ================= ANIMATION ===================== */
+/* ================================================= */
 
-.modal-actions button {
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ================================================= */
 /* ================= RESPONSIVE ==================== */
 /* ================================================= */
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .seller-page {
     padding: 20px;
   }
@@ -390,7 +301,7 @@
     grid-template-columns: 1fr;
   }
 
-  .menu-grid {
-    grid-template-columns: 1fr;
+  .modal {
+    width: 90%;
   }
 }

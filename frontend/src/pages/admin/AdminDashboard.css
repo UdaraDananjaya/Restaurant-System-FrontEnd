@@ -2,21 +2,23 @@
 /* ================= THEME SYSTEM ================== */
 /* ================================================= */
 
-.admin-container.dark {
-  background: #0f172a;
-  color: #e5e7eb;
-}
-
-.admin-container.light {
-  background: #f3f4f6;
-  color: #111827;
-}
-
 .admin-container {
   min-height: 100vh;
   padding: 30px;
   font-family: "Segoe UI", Arial, sans-serif;
   transition: all 0.3s ease;
+}
+
+/* DARK MODE */
+.admin-container.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* LIGHT MODE */
+.admin-container.light {
+  background: #f3f4f6;
+  color: #111827;
 }
 
 /* ================================================= */
@@ -41,7 +43,7 @@
   gap: 15px;
 }
 
-/* Dark / Light toggle */
+/* Toggle Button */
 .mode-toggle {
   background: #2563eb;
   color: white;
@@ -50,14 +52,18 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .mode-toggle:hover {
   background: #1e40af;
+  transform: translateY(-2px);
 }
 
-/* Profile Avatar */
+/* ================================================= */
+/* ================= PROFILE ======================= */
+/* ================================================= */
+
 .profile-box {
   position: relative;
 }
@@ -65,7 +71,7 @@
 .profile-avatar {
   width: 38px;
   height: 38px;
-  background: #16a34a;
+  background: linear-gradient(135deg, #16a34a, #15803d);
   color: white;
   border-radius: 50%;
   display: flex;
@@ -80,7 +86,7 @@
   transform: scale(1.1);
 }
 
-/* Profile Dropdown */
+/* Dropdown */
 .profile-dropdown {
   position: absolute;
   right: 0;
@@ -89,9 +95,15 @@
   color: #111827;
   padding: 15px;
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  min-width: 160px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+  min-width: 170px;
+  animation: fadeIn 0.25s ease;
   z-index: 999;
+}
+
+.admin-container.dark .profile-dropdown {
+  background: #1e293b;
+  color: #e5e7eb;
 }
 
 .profile-dropdown button {
@@ -103,6 +115,7 @@
   color: white;
   border-radius: 6px;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
 .profile-dropdown button:hover {
@@ -136,21 +149,25 @@
 }
 
 .card {
-  background: linear-gradient(135deg, #1e293b, #020617);
   padding: 20px;
-  border-radius: 12px;
+  border-radius: 14px;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
-  transition: 0.2s ease;
+  transition: 0.25s ease;
+  backdrop-filter: blur(6px);
+}
+
+.admin-container.dark .card {
+  background: linear-gradient(135deg, #1e293b, #020617);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
 .admin-container.light .card {
   background: white;
-  color: #111827;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-6px);
 }
 
 .card span {
@@ -161,7 +178,8 @@
 }
 
 .card strong {
-  font-size: 24px;
+  font-size: 26px;
+  font-weight: 600;
 }
 
 /* ================================================= */
@@ -176,14 +194,17 @@
 }
 
 .tabs button {
-  background: #1e293b;
-  color: #e5e7eb;
   border: none;
   padding: 10px 18px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  transition: 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.admin-container.dark .tabs button {
+  background: #1e293b;
+  color: #e5e7eb;
 }
 
 .admin-container.light .tabs button {
@@ -192,8 +213,8 @@
 }
 
 .tabs button.active {
-  background: #2563eb;
-  color: white;
+  background: #2563eb !important;
+  color: white !important;
 }
 
 .tabs button:hover {
@@ -205,12 +226,21 @@
 /* ================================================= */
 
 .tab-content {
+  border-radius: 16px;
+  padding: 25px;
+  animation: fadeIn 0.3s ease;
+}
+
+.admin-container.dark .tab-content {
+  background: #1e293b;
+  color: #e5e7eb;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.admin-container.light .tab-content {
   background: white;
   color: #111827;
-  border-radius: 14px;
-  padding: 25px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.3s ease;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 .tab-content h2 {
@@ -229,6 +259,7 @@
   display: flex;
   gap: 12px;
   margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 
 .export-buttons button {
@@ -255,15 +286,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f9fafb;
   padding: 12px 15px;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  border-radius: 10px;
+  margin-bottom: 10px;
   transition: 0.2s ease;
 }
 
+.admin-container.dark .row {
+  background: #0f172a;
+}
+
+.admin-container.light .row {
+  background: #f9fafb;
+}
+
 .row:hover {
-  background: #f3f4f6;
+  transform: translateY(-2px);
 }
 
 .row button {
@@ -273,10 +311,6 @@
   padding: 6px 14px;
   border-radius: 6px;
   cursor: pointer;
-}
-
-.row button:hover {
-  background: #15803d;
 }
 
 .row button:disabled {
@@ -291,12 +325,12 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  margin-top: 15px;
   font-size: 14px;
 }
 
 thead {
-  background: #1e293b;
+  background: #2563eb;
   color: white;
 }
 
@@ -307,11 +341,15 @@ td {
 }
 
 tbody tr:nth-child(even) {
-  background: #f3f4f6;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.admin-container.dark tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.04);
 }
 
 tbody tr:hover {
-  background: #e5e7eb;
+  background: rgba(37, 99, 235, 0.08);
 }
 
 /* ================================================= */
@@ -322,14 +360,21 @@ tbody tr:hover {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
   gap: 24px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 .chart-box {
-  background: #f9fafb;
   padding: 20px;
   border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: 0.3s ease;
+}
+
+.admin-container.dark .chart-box {
+  background: #0f172a;
+}
+
+.admin-container.light .chart-box {
+  background: #f9fafb;
 }
 
 .chart-box h2 {
@@ -345,7 +390,7 @@ tbody tr:hover {
 .status-badge {
   display: inline-block;
   margin-left: 8px;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
@@ -391,12 +436,12 @@ tbody tr:hover {
     flex-direction: column;
   }
 
-  .export-buttons {
-    flex-direction: column;
-  }
-
   .summary-grid {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .export-buttons {
+    flex-direction: column;
   }
 
   table {

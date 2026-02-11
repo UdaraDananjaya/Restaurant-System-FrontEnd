@@ -1,64 +1,101 @@
 const express = require("express");
 const router = express.Router();
 
+/* ================= MIDDLEWARE ================= */
 const verifyToken = require("../middleware/auth.middleware");
 const checkRole = require("../middleware/role.middleware");
 const upload = require("../middleware/upload.middleware");
 
-const seller = require("../controllers/seller.controller");
+/* ================= CONTROLLER ================= */
+const sellerController = require("../controllers/seller.controller");
 
-/* ================= RESTAURANT ================= */
+/* ================================================= */
+/* ================= RESTAURANT ==================== */
+/* ================================================= */
+
 router.get(
   "/restaurant",
   verifyToken,
   checkRole(["SELLER"]),
-  seller.getRestaurant,
+  sellerController.getRestaurant,
 );
 
-/* ================= MENU ================= */
-router.get("/menu", verifyToken, checkRole(["SELLER"]), seller.getMenu);
+/* ================================================= */
+/* ================= MENU MANAGEMENT =============== */
+/* ================================================= */
 
+/* Get Menu */
+router.get(
+  "/menu",
+  verifyToken,
+  checkRole(["SELLER"]),
+  sellerController.getMenu,
+);
+
+/* Add Menu Item */
 router.post(
   "/menu",
   verifyToken,
   checkRole(["SELLER"]),
   upload.single("image"),
-  seller.addMenuItem,
+  sellerController.addMenuItem,
 );
 
+/* Update Menu Item */
 router.put(
   "/menu/:id",
   verifyToken,
   checkRole(["SELLER"]),
   upload.single("image"),
-  seller.updateMenuItem,
+  sellerController.updateMenuItem,
 );
 
+/* Delete Menu Item */
 router.delete(
   "/menu/:id",
   verifyToken,
   checkRole(["SELLER"]),
-  seller.deleteMenuItem,
+  sellerController.deleteMenuItem,
 );
 
-/* ================= ORDERS ================= */
-router.get("/orders", verifyToken, checkRole(["SELLER"]), seller.getOrders);
+/* ================================================= */
+/* ================= ORDER MANAGEMENT ============== */
+/* ================================================= */
 
+/* Get Orders */
+router.get(
+  "/orders",
+  verifyToken,
+  checkRole(["SELLER"]),
+  sellerController.getOrders,
+);
+
+/* Update Order Status */
 router.put(
   "/orders/:id/status",
   verifyToken,
   checkRole(["SELLER"]),
-  seller.updateOrderStatus,
+  sellerController.updateOrderStatus,
 );
 
-/* ================= ANALYTICS ================= */
+/* ================================================= */
+/* ================= ANALYTICS ===================== */
+/* ================================================= */
+
+/* Basic Analytics */
 router.get(
   "/analytics",
   verifyToken,
   checkRole(["SELLER"]),
-  seller.getAnalytics,
+  sellerController.getAnalytics,
 );
 
-router.get("/forecast", verifyToken, checkRole(["SELLER"]), seller.getForecast);
+/* Forecast (Future ML Integration Ready) */
+router.get(
+  "/forecast",
+  verifyToken,
+  checkRole(["SELLER"]),
+  sellerController.getForecast,
+);
 
 module.exports = router;

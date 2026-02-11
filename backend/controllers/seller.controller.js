@@ -1,6 +1,8 @@
 const pool = require("../config/db");
 
-/* ================= RESTAURANT ================= */
+/* ================================================= */
+/* ================= RESTAURANT ==================== */
+/* ================================================= */
 
 exports.getRestaurant = async (req, res) => {
   try {
@@ -16,7 +18,9 @@ exports.getRestaurant = async (req, res) => {
   }
 };
 
-/* ================= MENU ================= */
+/* ================================================= */
+/* ================= MENU ========================== */
+/* ================================================= */
 
 exports.getMenu = async (req, res) => {
   try {
@@ -28,7 +32,7 @@ exports.getMenu = async (req, res) => {
     if (restaurant.length === 0) return res.json([]);
 
     const [menu] = await pool.execute(
-      "SELECT * FROM menu_items WHERE restaurant_id = ?",
+      "SELECT * FROM menu_items WHERE restaurant_id = ? ORDER BY id DESC",
       [restaurant[0].id],
     );
 
@@ -71,7 +75,21 @@ exports.addMenuItem = async (req, res) => {
 exports.updateMenuItem = async (req, res) => {
   try {
     const { name, price, stock, isAvailable } = req.body;
+
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // 🔐 Ensure item belongs to this seller
+    const [check] = await pool.execute(
+      `SELECT m.id 
+       FROM menu_items m
+       JOIN restaurants r ON m.restaurant_id = r.id
+       WHERE m.id = ? AND r.seller_id = ?`,
+      [req.params.id, req.user.id],
+    );
+
+    if (check.length === 0) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
 
     await pool.execute(
       `UPDATE menu_items SET
@@ -93,6 +111,19 @@ exports.updateMenuItem = async (req, res) => {
 
 exports.deleteMenuItem = async (req, res) => {
   try {
+    // 🔐 Ensure ownership before delete
+    const [check] = await pool.execute(
+      `SELECT m.id 
+       FROM menu_items m
+       JOIN restaurants r ON m.restaurant_id = r.id
+       WHERE m.id = ? AND r.seller_id = ?`,
+      [req.params.id, req.user.id],
+    );
+
+    if (check.length === 0) {
+      return res.status(403).json({ message: "Unauthorized action" });
+    }
+
     await pool.execute("DELETE FROM menu_items WHERE id = ?", [req.params.id]);
 
     res.json({ message: "✅ Menu item deleted" });
@@ -102,7 +133,9 @@ exports.deleteMenuItem = async (req, res) => {
   }
 };
 
-/* ================= ORDERS ================= */
+/* ================================================= */
+/* ================= ORDERS ======================== */
+/* ================================================= */
 
 exports.getOrders = async (req, res) => {
   try {
@@ -114,7 +147,11 @@ exports.getOrders = async (req, res) => {
     if (restaurant.length === 0) return res.json([]);
 
     const [orders] = await pool.execute(
-      "SELECT * FROM orders WHERE restaurant_id = ?",
+      `SELECT o.*, u.email AS customerEmail
+       FROM orders o
+       JOIN users u ON o.user_id = u.id
+       WHERE o.restaurant_id = ?
+       ORDER BY o.created_at DESC`,
       [restaurant[0].id],
     );
 
@@ -127,10 +164,17 @@ exports.getOrders = async (req, res) => {
 
 exports.updateOrderStatus = async (req, res) => {
   try {
-    await pool.execute("UPDATE orders SET status = ? WHERE id = ?", [
-      req.body.status,
-      req.params.id,
-    ]);
+    const { status } = req.body;
+
+    await pool.execute(
+      `UPDATE orders 
+       SET status = ? 
+       WHERE id = ? 
+       AND restaurant_id = (
+         SELECT id FROM restaurants WHERE seller_id = ?
+       )`,
+      [status, req.params.id, req.user.id],
+    );
 
     res.json({ message: "✅ Order status updated" });
   } catch (err) {
@@ -139,12 +183,14 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-/* ================= ANALYTICS ================= */
+/* ================================================= */
+/* ================= ANALYTICS ===================== */
+/* ================================================= */
 
 exports.getAnalytics = async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      `SELECT name, stock 
+      `SELECT name, stock, price
        FROM menu_items 
        WHERE restaurant_id = (
          SELECT id FROM restaurants WHERE seller_id = ?
@@ -159,8 +205,12 @@ exports.getAnalytics = async (req, res) => {
   }
 };
 
+/* ================================================= */
+/* ================= FORECAST ====================== */
+/* ================================================= */
+
 exports.getForecast = (req, res) => {
-  // Placeholder (can replace with ML later)
+  // Placeholder (can integrate ML model later)
   res.json([
     { day: "Mon", orders: 10 },
     { day: "Tue", orders: 14 },

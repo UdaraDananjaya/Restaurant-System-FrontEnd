@@ -28,6 +28,13 @@ router.put(
   admin.reactivateUser,
 );
 
+router.put(
+  "/users/:id/reject",
+  verifyToken,
+  checkRole(["ADMIN"]),
+  admin.rejectSeller,
+);
+
 /* ================= ANALYTICS ================= */
 
 router.get("/analytics", verifyToken, checkRole(["ADMIN"]), admin.analytics);
