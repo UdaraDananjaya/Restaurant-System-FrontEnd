@@ -1,0 +1,96 @@
+/* ===== FULL SCREEN CONTAINER ===== */
+.home-full {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #020617, #020617, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Decorative overlay */
+.home-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at top left,
+    rgba(37, 99, 235, 0.25),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+/* ===== CONTENT ===== */
+.home-inner {
+  position: relative;
+  max-width: 900px;
+  padding: 60px;
+  text-align: center;
+  color: #f9fafb;
+  z-index: 1;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.brand {
+  font-size: 64px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.tagline {
+  font-size: 22px;
+  font-weight: 500;
+  color: #93c5fd;
+  margin-bottom: 28px;
+}
+
+.description {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #d1d5db;
+  max-width: 780px;
+  margin: 0 auto 45px;
+}
+
+/* ===== ACTIONS ===== */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  min-width: 220px;
+  padding: 14px 32px;
+  font-size: 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 14px 40px rgba(37, 99, 235, 0.45);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 55px rgba(37, 99, 235, 0.65);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.18);
+}

@@ -1,0 +1,405 @@
+/* ================================================= */
+/* ================= THEME SYSTEM ================== */
+/* ================================================= */
+
+.admin-container.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+.admin-container.light {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.admin-container {
+  min-height: 100vh;
+  padding: 30px;
+  font-family: "Segoe UI", Arial, sans-serif;
+  transition: all 0.3s ease;
+}
+
+/* ================================================= */
+/* ================= HEADER ======================== */
+/* ================================================= */
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.admin-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.admin-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Dark / Light toggle */
+.mode-toggle {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.mode-toggle:hover {
+  background: #1e40af;
+}
+
+/* Profile Avatar */
+.profile-box {
+  position: relative;
+}
+
+.profile-avatar {
+  width: 38px;
+  height: 38px;
+  background: #16a34a;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.1);
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 50px;
+  background: white;
+  color: #111827;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  min-width: 160px;
+  z-index: 999;
+}
+
+.profile-dropdown button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  background: #dc2626;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.profile-dropdown button:hover {
+  background: #b91c1c;
+}
+
+/* ================================================= */
+/* ================= SUCCESS MESSAGE ============== */
+/* ================================================= */
+
+.success-box {
+  background: #dcfce7;
+  color: #166534;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: fadeIn 0.4s ease;
+}
+
+/* ================================================= */
+/* ================= KPI CARDS ===================== */
+/* ================================================= */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: linear-gradient(135deg, #1e293b, #020617);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  transition: 0.2s ease;
+}
+
+.admin-container.light .card {
+  background: white;
+  color: #111827;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card span {
+  display: block;
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+.card strong {
+  font-size: 24px;
+}
+
+/* ================================================= */
+/* ================= TABS ========================== */
+/* ================================================= */
+
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.admin-container.light .tabs button {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.tabs button.active {
+  background: #2563eb;
+  color: white;
+}
+
+.tabs button:hover {
+  transform: translateY(-2px);
+}
+
+/* ================================================= */
+/* ================= CONTENT AREA ================== */
+/* ================================================= */
+
+.tab-content {
+  background: white;
+  color: #111827;
+  border-radius: 14px;
+  padding: 25px;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-content h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+/* ================================================= */
+/* ================= EXPORT BUTTONS =============== */
+/* ================================================= */
+
+.export-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.export-buttons button {
+  background: #16a34a;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.export-buttons button:hover {
+  background: #15803d;
+  transform: translateY(-2px);
+}
+
+/* ================================================= */
+/* ================= ROWS ========================== */
+/* ================================================= */
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9fafb;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: 0.2s ease;
+}
+
+.row:hover {
+  background: #f3f4f6;
+}
+
+.row button {
+  background: #16a34a;
+  border: none;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.row button:hover {
+  background: #15803d;
+}
+
+.row button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ================================================= */
+/* ================= TABLES ======================== */
+/* ================================================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+thead {
+  background: #1e293b;
+  color: white;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+}
+
+tbody tr:nth-child(even) {
+  background: #f3f4f6;
+}
+
+tbody tr:hover {
+  background: #e5e7eb;
+}
+
+/* ================================================= */
+/* ================= CHARTS ======================== */
+/* ================================================= */
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 24px;
+  margin-top: 10px;
+}
+
+.chart-box {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.chart-box h2 {
+  margin-bottom: 12px;
+  font-size: 18px;
+  text-align: center;
+}
+
+/* ================================================= */
+/* ================= STATUS BADGES ================= */
+/* ================================================= */
+
+.status-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.pending {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.status-badge.suspended {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ================================================= */
+/* ================= ANIMATIONS ==================== */
+/* ================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================================= */
+/* ================= RESPONSIVE ==================== */
+/* ================================================= */
+
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  table {
+    font-size: 12px;
+  }
+}
