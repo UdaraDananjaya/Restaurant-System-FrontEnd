@@ -49,19 +49,36 @@ const AdminDashboard = () => {
 
   /* ================= LOAD DATA ================= */
 
+  const normalizeStatus = (status, role) => {
+    if (role === "SELLER" && (!status || status.trim() === "")) {
+      return "PENDING";
+    }
+    return status;
+  };
+
   const loadAll = async () => {
     try {
-      const [u, r, o, f, uc, a, rev] = await Promise.all([
-        api.get("/admin/users"),
-        api.get("/admin/restaurants"),
-        api.get("/admin/orders"),
-        api.get("/admin/fast-moving-restaurants"),
-        api.get("/admin/user-distribution"),
-        api.get("/admin/analytics"),
-        api.get("/admin/revenue-trend"),
-      ]);
+      const [u] = await Promise.all([api.get("/admin/users")]);
 
-      setUsers(u.data || []);
+      //    const [u, r, o, f, uc, a, rev] = await Promise.all([
+      //   api.get("/admin/users"),
+      //   api.get("/admin/restaurants"),
+      //   api.get("/admin/orders"),
+      //   api.get("/admin/fast-moving-restaurants"),
+      //   api.get("/admin/user-distribution"),
+      //   api.get("/admin/analytics"),
+      //   api.get("/admin/revenue-trend"),
+      // ]);
+
+      const normalizedUsers = (u.data || []).map((user) => ({
+        ...user,
+        status: normalizeStatus(user.status, user.role),
+      }));
+
+      setUsers(normalizedUsers);
+      console.log("USERS FROM API:", normalizedUsers);
+
+      // setUsers(u || []);
       setRestaurants(r.data || []);
       setOrders(o.data || []);
       setFastMoving(f.data || []);
