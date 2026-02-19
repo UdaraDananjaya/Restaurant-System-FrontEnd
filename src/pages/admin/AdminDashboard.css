@@ -1,299 +1,406 @@
-/* ================================================= */
 /* ================= THEME SYSTEM ================== */
-/* ================================================= */
-
 .admin-container {
   min-height: 100vh;
   padding: 30px;
   font-family: "Segoe UI", Arial, sans-serif;
-  transition: all 0.3s ease;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
 }
 
 /* DARK MODE */
 .admin-container.dark {
-  background: #0f172a;
+  background:
+    radial-gradient(
+      1200px 600px at 20% 0%,
+      rgba(37, 99, 235, 0.18),
+      transparent 55%
+    ),
+    radial-gradient(
+      900px 500px at 80% 10%,
+      rgba(16, 185, 129, 0.12),
+      transparent 55%
+    ),
+    #0b1220;
   color: #e5e7eb;
 }
 
 /* LIGHT MODE */
 .admin-container.light {
-  background: #f3f4f6;
+  background:
+    radial-gradient(
+      1000px 500px at 20% 0%,
+      rgba(37, 99, 235, 0.08),
+      transparent 55%
+    ),
+    radial-gradient(
+      900px 500px at 80% 10%,
+      rgba(16, 185, 129, 0.06),
+      transparent 55%
+    ),
+    #f3f4f6;
   color: #111827;
 }
 
-/* ================================================= */
 /* ================= HEADER ======================== */
-/* ================================================= */
-
 .admin-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
+  gap: 16px;
 }
 
 .admin-header h1 {
   font-size: 28px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: -0.2px;
 }
 
 .admin-right {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 /* Toggle Button */
 .mode-toggle {
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 13px;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
 }
 
 .mode-toggle:hover {
-  background: #1e40af;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.32);
+  filter: brightness(1.02);
 }
 
-/* ================================================= */
-/* ================= PROFILE ======================= */
-/* ================================================= */
+.mode-toggle:active {
+  transform: translateY(0px);
+}
 
+/* ================= PROFILE ======================= */
 .profile-box {
   position: relative;
 }
 
 .profile-avatar {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   background: linear-gradient(135deg, #16a34a, #15803d);
   color: white;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 800;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 .profile-avatar:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 /* Dropdown */
 .profile-dropdown {
   position: absolute;
   right: 0;
-  top: 50px;
-  background: white;
-  color: #111827;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-  min-width: 170px;
-  animation: fadeIn 0.25s ease;
+  top: 52px;
+  padding: 14px;
+  border-radius: 12px;
+  min-width: 190px;
+  animation: fadeIn 0.2s ease;
   z-index: 999;
+  border: 1px solid rgba(229, 231, 235, 0.7);
+}
+
+.admin-container.light .profile-dropdown {
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
 }
 
 .admin-container.dark .profile-dropdown {
-  background: #1e293b;
+  background: #111b2e;
   color: #e5e7eb;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+.profile-dropdown p {
+  margin: 0 0 8px 0;
+  font-size: 13px;
 }
 
 .profile-dropdown button {
   margin-top: 10px;
   width: 100%;
-  padding: 8px;
+  padding: 9px 10px;
   border: none;
-  background: #dc2626;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
   color: white;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s ease;
+  font-weight: 700;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
 }
 
 .profile-dropdown button:hover {
-  background: #b91c1c;
+  transform: translateY(-1px);
+  filter: brightness(1.02);
 }
 
-/* ================================================= */
-/* ================= SUCCESS MESSAGE ============== */
-/* ================================================= */
-
+/* ================= MESSAGES ====================== */
 .success-box {
   background: #dcfce7;
   color: #166534;
   padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  border-radius: 12px;
+  margin-bottom: 14px;
   font-size: 14px;
-  font-weight: 500;
-  animation: fadeIn 0.4s ease;
+  font-weight: 700;
+  animation: fadeIn 0.35s ease;
+  border: 1px solid rgba(22, 101, 52, 0.12);
 }
 
-/* ================================================= */
-/* ================= KPI CARDS ===================== */
-/* ================================================= */
+.error-box {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  animation: fadeIn 0.35s ease;
+  border: 1px solid rgba(153, 27, 27, 0.12);
+}
 
+/* ================= KPI CARDS ===================== */
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 18px;
-  margin-bottom: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .card {
-  padding: 20px;
-  border-radius: 14px;
-  text-align: center;
-  transition: 0.25s ease;
-  backdrop-filter: blur(6px);
+  padding: 18px;
+  border-radius: 16px;
+  text-align: left;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+  border: 1px solid rgba(229, 231, 235, 0.6);
 }
 
 .admin-container.dark .card {
-  background: linear-gradient(135deg, #1e293b, #020617);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.9),
+    rgba(2, 6, 23, 0.9)
+  );
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.45);
+  border-color: rgba(148, 163, 184, 0.12);
 }
 
 .admin-container.light .card {
-  background: white;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
 }
 
 .card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 
 .card span {
   display: block;
-  font-size: 13px;
-  color: #9ca3af;
-  margin-bottom: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.admin-container.light .card span {
+  color: #6b7280;
 }
 
 .card strong {
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 800;
 }
 
-/* ================================================= */
 /* ================= TABS ========================== */
-/* ================================================= */
-
 .tabs {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 18px;
   flex-wrap: wrap;
 }
 
 .tabs button {
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  border: 1px solid rgba(229, 231, 235, 0.65);
+  padding: 10px 16px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 800;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
 }
 
 .admin-container.dark .tabs button {
-  background: #1e293b;
+  background: rgba(30, 41, 59, 0.9);
   color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.14);
 }
 
 .admin-container.light .tabs button {
-  background: #e5e7eb;
+  background: rgba(243, 244, 246, 0.9);
   color: #111827;
 }
 
 .tabs button.active {
-  background: #2563eb !important;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
   color: white !important;
+  border-color: rgba(37, 99, 235, 0.45) !important;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.28);
 }
 
 .tabs button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
-/* ================================================= */
 /* ================= CONTENT AREA ================== */
-/* ================================================= */
-
 .tab-content {
-  border-radius: 16px;
-  padding: 25px;
-  animation: fadeIn 0.3s ease;
+  border-radius: 18px;
+  padding: 22px;
+  animation: fadeIn 0.25s ease;
+  border: 1px solid rgba(229, 231, 235, 0.6);
 }
 
 .admin-container.dark .tab-content {
-  background: #1e293b;
+  background: rgba(17, 27, 46, 0.92);
   color: #e5e7eb;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  border-color: rgba(148, 163, 184, 0.12);
 }
 
 .admin-container.light .tab-content {
-  background: white;
+  background: #ffffff;
   color: #111827;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.1);
 }
 
 .tab-content h2 {
-  margin-bottom: 15px;
-  font-size: 20px;
-  font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 8px;
+  margin-bottom: 14px;
+  font-size: 18px;
+  font-weight: 900;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.8);
 }
 
-/* ================================================= */
-/* ================= EXPORT BUTTONS =============== */
-/* ================================================= */
+.admin-container.dark .tab-content h2 {
+  border-bottom-color: rgba(148, 163, 184, 0.18);
+}
 
+/* ================= INPUTS (Search) =============== */
+.tab-content input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(229, 231, 235, 0.75);
+  outline: none;
+  font-size: 13px;
+  transition:
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.admin-container.dark .tab-content input {
+  background: rgba(15, 23, 42, 0.6);
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.16);
+}
+
+.admin-container.light .tab-content input {
+  background: #ffffff;
+  color: #111827;
+}
+
+.tab-content input:focus {
+  border-color: rgba(37, 99, 235, 0.7);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+/* ================= EXPORT BUTTONS ================ */
 .export-buttons {
   display: flex;
   gap: 12px;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
   flex-wrap: wrap;
 }
 
 .export-buttons button {
-  background: #16a34a;
+  background: linear-gradient(135deg, #16a34a, #15803d);
   border: none;
   color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 9px 14px;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 13px;
-  transition: 0.2s ease;
+  font-weight: 800;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
 }
 
 .export-buttons button:hover {
-  background: #15803d;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 25px rgba(22, 163, 74, 0.25);
+  filter: brightness(1.02);
 }
 
-/* ================================================= */
 /* ================= ROWS ========================== */
-/* ================================================= */
-
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
-  border-radius: 10px;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
   margin-bottom: 10px;
-  transition: 0.2s ease;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease;
+  border: 1px solid rgba(229, 231, 235, 0.6);
 }
 
 .admin-container.dark .row {
-  background: #0f172a;
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(148, 163, 184, 0.12);
 }
 
 .admin-container.light .row {
@@ -305,32 +412,42 @@
 }
 
 .row button {
-  background: #16a34a;
+  background: linear-gradient(135deg, #16a34a, #15803d);
   border: none;
   color: white;
-  padding: 6px 14px;
-  border-radius: 6px;
+  padding: 7px 14px;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 800;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease;
+}
+
+.row button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
 }
 
 .row button:disabled {
   background: #9ca3af;
   cursor: not-allowed;
+  transform: none;
+  filter: none;
 }
 
-/* ================================================= */
 /* ================= TABLES ======================== */
-/* ================================================= */
-
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
-  font-size: 14px;
+  margin-top: 14px;
+  font-size: 13.5px;
+  overflow: hidden;
+  border-radius: 14px;
 }
 
 thead {
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
 }
 
@@ -338,6 +455,16 @@ th,
 td {
   padding: 12px;
   text-align: left;
+}
+
+.admin-container.dark td,
+.admin-container.dark th {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.admin-container.light td,
+.admin-container.light th {
+  border-bottom: 1px solid rgba(229, 231, 235, 0.85);
 }
 
 tbody tr:nth-child(even) {
@@ -352,49 +479,52 @@ tbody tr:hover {
   background: rgba(37, 99, 235, 0.08);
 }
 
-/* ================================================= */
 /* ================= CHARTS ======================== */
-/* ================================================= */
-
 .analytics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 24px;
-  margin-top: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 18px;
+  margin-top: 10px;
 }
 
 .chart-box {
-  padding: 20px;
-  border-radius: 14px;
-  transition: 0.3s ease;
+  padding: 18px;
+  border-radius: 16px;
+  transition: transform 0.18s ease;
+  border: 1px solid rgba(229, 231, 235, 0.6);
 }
 
 .admin-container.dark .chart-box {
-  background: #0f172a;
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(148, 163, 184, 0.12);
 }
 
 .admin-container.light .chart-box {
   background: #f9fafb;
 }
 
+.chart-box:hover {
+  transform: translateY(-2px);
+}
+
 .chart-box h2 {
   margin-bottom: 12px;
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 900;
   text-align: center;
 }
 
-/* ================================================= */
 /* ================= STATUS BADGES ================= */
-/* ================================================= */
-
 .status-badge {
   display: inline-block;
   margin-left: 8px;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 900;
+  letter-spacing: 0.4px;
   text-transform: uppercase;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .status-badge.approved {
@@ -407,15 +537,17 @@ tbody tr:hover {
   color: #854d0e;
 }
 
+.status-badge.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .status-badge.suspended {
   background: #fee2e2;
   color: #991b1b;
 }
 
-/* ================================================= */
 /* ================= ANIMATIONS ==================== */
-/* ================================================= */
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -427,17 +559,25 @@ tbody tr:hover {
   }
 }
 
-/* ================================================= */
 /* ================= RESPONSIVE ==================== */
-/* ================================================= */
+@media (max-width: 900px) {
+  .admin-container {
+    padding: 18px;
+  }
+}
 
 @media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .tabs {
     flex-direction: column;
   }
 
   .summary-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 
   .export-buttons {
@@ -446,5 +586,16 @@ tbody tr:hover {
 
   table {
     font-size: 12px;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
