@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../api/api";
 import "./Register.css";
 
 /**
@@ -43,6 +44,7 @@ const Register = () => {
     // customer
     age: "",
     gender: "",
+    genderOtherText: "",
     dietaryPref: [],
     favoriteCuisine: "",
     favoriteCuisineOther: "",
@@ -65,6 +67,11 @@ const Register = () => {
       // If user changed favoriteCuisine away from Other, clear custom text
       if (name === "favoriteCuisine" && value !== "Other") {
         next.favoriteCuisineOther = "";
+      }
+
+      // If user changed gender away from Other, clear custom gender text
+      if (name === "gender" && value !== "Other") {
+        next.genderOtherText = "";
       }
 
       return next;
@@ -98,10 +105,13 @@ const Register = () => {
     }
 
     if (role === "CUSTOMER") {
-      const { age, gender, dietaryPref, favoriteCuisine } = form;
+      const { age, gender, dietaryPref, favoriteCuisine, genderOtherText } =
+        form;
 
       if (!age || Number(age) <= 0) return "Please enter a valid Age.";
       if (!gender) return "Please select Gender.";
+      if (gender === "Other" && !(genderOtherText || "").trim())
+        return "Please specify your Gender (Other).";
       if (!dietaryPref || dietaryPref.length === 0)
         return "Please select at least one Dietary Preference.";
       if (!favoriteCuisine) return "Please select Favorite Cuisine.";
@@ -131,46 +141,6 @@ const Register = () => {
     return null;
   };
 
-  const saveToLocalStorage = () => {
-    const key = "dinesmart_registered_users";
-    const existing = JSON.parse(localStorage.getItem(key) || "[]");
-
-    const record = {
-      role: form.role,
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      password: form.password, // demo only
-      createdAt: new Date().toISOString(),
-    };
-
-    if (form.role === "CUSTOMER") {
-      record.customerProfile = {
-        age: Number(form.age),
-        gender: form.gender,
-        dietaryPref: form.dietaryPref,
-        favoriteCuisine: getFinalFavoriteCuisine(),
-        orderHistory: [],
-      };
-    }
-
-    if (form.role === "SELLER") {
-      record.sellerProfile = {
-        restaurantName: form.restaurantName,
-        contactNumber: form.contactNumber,
-        restaurantAddress: form.restaurantAddress,
-        restaurantCuisines: form.restaurantCuisines,
-      };
-    }
-
-    const already = existing.find((u) => u.email === record.email);
-    if (already) {
-      throw new Error("This email is already registered (local demo).");
-    }
-
-    existing.push(record);
-    localStorage.setItem(key, JSON.stringify(existing));
-  };
-
   const handleRegister = async () => {
     const error = validate();
     if (error) {
@@ -180,17 +150,53 @@ const Register = () => {
 
     try {
       setLoading(true);
-      saveToLocalStorage();
+
+      // ✅ Backend payload (matches backend auth.controller.js)
+      const payload = {
+        role: form.role,
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+
+        // customer
+        age: form.role === "CUSTOMER" ? Number(form.age) : undefined,
+        gender: form.role === "CUSTOMER" ? form.gender : undefined,
+        genderOtherText:
+          form.role === "CUSTOMER" && form.gender === "Other"
+            ? (form.genderOtherText || "").trim()
+            : undefined,
+        dietaryPref: form.role === "CUSTOMER" ? form.dietaryPref : undefined,
+        favoriteCuisine:
+          form.role === "CUSTOMER" ? getFinalFavoriteCuisine() : undefined,
+
+        // seller
+        restaurantName:
+          form.role === "SELLER" ? form.restaurantName : undefined,
+        contactNumber: form.role === "SELLER" ? form.contactNumber : undefined,
+        restaurantAddress:
+          form.role === "SELLER" ? form.restaurantAddress : undefined,
+        restaurantCuisines:
+          form.role === "SELLER" ? form.restaurantCuisines : undefined,
+      };
+
+      // Remove undefined fields (clean request)
+      Object.keys(payload).forEach(
+        (k) => payload[k] === undefined && delete payload[k],
+      );
+
+      const res = await api.post("/auth/register", payload);
 
       alert(
-        form.role === "SELLER"
-          ? "Seller registration saved (frontend demo). You can connect backend later."
-          : "Customer registration saved (frontend demo). You can login now.",
+        res?.data?.message ||
+          (form.role === "SELLER"
+            ? "Seller registered successfully. Awaiting admin approval."
+            : "Customer registered successfully."),
       );
 
       navigate("/login");
     } catch (err) {
-      alert(err?.message || "Registration failed");
+      console.error("Register error:", err.response?.data || err);
+      alert(err?.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -273,6 +279,20 @@ const Register = () => {
                 ))}
               </select>
             </div>
+
+            {/* ✅ Show text input only when Gender is Other */}
+            {form.gender === "Other" && (
+              <div className="form-group">
+                <label>Please specify Gender *</label>
+                <input
+                  type="text"
+                  name="genderOtherText"
+                  value={form.genderOtherText}
+                  onChange={handleChange}
+                  placeholder="Type your gender"
+                />
+              </div>
+            )}
 
             <div className="form-group">
               <label>Dietary Preferences * (select at least one)</label>

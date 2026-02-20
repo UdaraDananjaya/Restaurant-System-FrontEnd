@@ -27,12 +27,14 @@ const Login = () => {
       console.log("Login response:", res.data);
 
       // ✅ MATCHES UPDATED BACKEND RESPONSE
-      const { token, role, name } = res.data;
+      const { token, role, name, status, id } = res.data;
 
       // Store auth data
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
       localStorage.setItem("name", name);
+      if (status) localStorage.setItem("status", status);
+      if (id) localStorage.setItem("userId", String(id));
 
       // Role-based redirect
       if (role === "ADMIN") navigate("/admin");

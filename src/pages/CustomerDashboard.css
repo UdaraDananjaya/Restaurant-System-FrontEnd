@@ -1,0 +1,619 @@
+/* =========================================
+   CustomerDashboard.css (PRO V4)
+   - Drop-in replacement
+   - Uses your existing class names
+   ========================================= */
+
+/* ---- Base / Theme ---- */
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: rgba(15, 23, 42, 0.7);
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 14px 40px rgba(15, 23, 42, 0.09);
+  --ring: 0 0 0 4px rgba(15, 23, 42, 0.08);
+
+  --primary: #0f172a;
+  --primary-2: #1f2937;
+
+  --warn: rgba(234, 179, 8, 1);
+  --success: rgba(34, 197, 94, 1);
+  --danger: rgba(220, 38, 38, 1);
+
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.customer-page {
+  padding: 22px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--text);
+  background:
+    radial-gradient(
+      1000px 400px at 20% 0%,
+      rgba(15, 23, 42, 0.06),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 380px at 90% 10%,
+      rgba(34, 197, 94, 0.06),
+      transparent 60%
+    ),
+    linear-gradient(180deg, var(--bg), #ffffff 55%);
+  border-radius: 24px;
+}
+
+/* ---- Header ---- */
+.customer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.customer-header h2 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.customer-header p {
+  margin: 8px 0 0;
+  color: var(--muted);
+}
+
+/* Muted helper */
+.muted {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* Header actions */
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---- Tabs (pill navigation) ---- */
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 14px 0 16px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid var(--border);
+}
+
+.tab {
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 650;
+  color: rgba(15, 23, 42, 0.78);
+  transition:
+    background 0.15s ease,
+    transform 0.06s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease;
+}
+
+.tab:hover {
+  background: rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
+}
+
+.tab.active {
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  font-weight: 800;
+  transform: none;
+}
+
+/* ---- Status row / pills ---- */
+.status-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.03);
+  font-size: 13px;
+}
+
+.pill.error {
+  border-color: rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.08);
+  color: rgba(185, 28, 28, 1);
+}
+
+/* ---- Layout grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .customer-page {
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .customer-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .header-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* ---- Card ---- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.card-head h3 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: -0.2px;
+}
+
+/* ---- Row helper ---- */
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ---- Inputs ---- */
+select,
+input,
+textarea {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  color: var(--text);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: var(--ring);
+}
+
+/* ---- Buttons ---- */
+.primary,
+.secondary,
+.danger {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  background: #fff;
+  font-weight: 700;
+  transition:
+    transform 0.06s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.primary {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.primary:hover {
+  background: var(--primary-2);
+  border-color: var(--primary-2);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.secondary:hover {
+  background: rgba(15, 23, 42, 0.04);
+  transform: translateY(-1px);
+}
+
+.danger {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: rgba(185, 28, 28, 1);
+}
+
+.danger:hover {
+  background: rgba(220, 38, 38, 0.12);
+  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.1);
+  transform: translateY(-1px);
+}
+
+.primary:disabled,
+.secondary:disabled,
+.danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---- Restaurant list ---- */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.list-item {
+  text-align: left;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  cursor: pointer;
+  background: white;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.list-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.list-item.active {
+  border-color: rgba(15, 23, 42, 0.25);
+  background: rgba(15, 23, 42, 0.03);
+  box-shadow: var(--shadow-sm);
+}
+
+.list-title {
+  font-weight: 850;
+  letter-spacing: -0.15px;
+}
+
+.list-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ---- Menu ---- */
+.menu-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.menu-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.02), #fff 60%);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.menu-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.menu-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.menu-name {
+  font-weight: 850;
+  letter-spacing: -0.15px;
+}
+
+.menu-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ---- Recommendations ---- */
+.recs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .recs {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rec-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.02), #fff 70%);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.rec-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.rec-title {
+  font-weight: 900;
+  letter-spacing: -0.2px;
+}
+
+/* ---- Cart ---- */
+.cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cart-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  background: #fff;
+}
+
+.cart-title {
+  font-weight: 850;
+  letter-spacing: -0.15px;
+}
+
+.qty {
+  width: 90px;
+}
+
+/* ---- Totals ---- */
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ---- Orders ---- */
+.orders {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.02), #fff 60%);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.order-id {
+  font-weight: 950;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: rgba(15, 23, 42, 0.92);
+}
+
+/* ---- Status pills ---- */
+.status {
+  font-size: 12px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.03);
+  color: rgba(15, 23, 42, 0.86);
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.status.pending {
+  border-color: rgba(234, 179, 8, 0.35);
+  background: rgba(234, 179, 8, 0.12);
+  color: rgba(161, 98, 7, 1);
+}
+
+.status.completed {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.1);
+  color: rgba(21, 128, 61, 1);
+}
+
+.status.cancelled {
+  border-color: rgba(220, 38, 38, 0.3);
+  background: rgba(220, 38, 38, 0.09);
+  color: rgba(185, 28, 28, 1);
+}
+
+/* ---- Profile form ---- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(15, 23, 42, 0.88);
+}
+
+.span2 {
+  grid-column: span 2;
+}
+
+@media (max-width: 700px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .span2 {
+    grid-column: span 1;
+  }
+}
+
+/* ---- Optional: “history editor” block (if you use it) ---- */
+.history-card {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.03), #fff 55%);
+}
+
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.history-head h4 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: -0.2px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 1.5fr 0.7fr 0.9fr 44px;
+  gap: 10px;
+  align-items: center;
+}
+
+.history-row input {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 700px) {
+  .history-row {
+    grid-template-columns: 1fr;
+  }
+  .history-row button {
+    width: 100%;
+  }
+}
+
+.muted.small {
+  font-size: 12px;
+}
