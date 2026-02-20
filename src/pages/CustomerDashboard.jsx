@@ -57,6 +57,25 @@ export default function CustomerDashboard() {
     return false;
   };
 
+  const normalizeOrderItems = (items) => {
+    if (Array.isArray(items)) return items;
+    if (!items) return [];
+
+    if (typeof items === "string") {
+      try {
+        const parsed = JSON.parse(items);
+        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed?.items)) return parsed.items;
+      } catch {
+        return [];
+      }
+    }
+
+    if (Array.isArray(items?.items)) return items.items;
+
+    return [];
+  };
+
   const loadProfile = async () => {
     setLoadingProfile(true);
     setError(null);
@@ -660,7 +679,7 @@ export default function CustomerDashboard() {
                 </div>
 
                 <div className="order-items">
-                  {(o.items || []).map((it, idx) => (
+                  {normalizeOrderItems(o.items).map((it, idx) => (
                     <div key={`${o.id}-${idx}`} className="order-item">
                       <span>{it.name}</span>
                       <span className="muted">
