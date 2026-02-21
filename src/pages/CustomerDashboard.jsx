@@ -5,6 +5,19 @@ import "./CustomerDashboard.css";
 
 const padOrderId = (id) => `O${String(id).padStart(6, "0")}`;
 
+// ✅ safe image getter (restaurant + menu)
+const pickImage = (obj) =>
+  obj?.imageUrl ||
+  obj?.image_url ||
+  obj?.image ||
+  obj?.photo ||
+  obj?.photo_url ||
+  obj?.logo ||
+  obj?.logo_url ||
+  obj?.cover ||
+  obj?.cover_url ||
+  "";
+
 export default function CustomerDashboard() {
   const navigate = useNavigate();
 
@@ -29,7 +42,6 @@ export default function CustomerDashboard() {
     favorite_cuisine: "",
   });
 
-  // ✅ NEW: replaces JSON textarea
   const [historyItems, setHistoryItems] = useState([
     { item: "", price: "", date: "" },
   ]);
@@ -70,9 +82,7 @@ export default function CustomerDashboard() {
         return [];
       }
     }
-
     if (Array.isArray(items?.items)) return items.items;
-
     return [];
   };
 
@@ -176,7 +186,6 @@ export default function CustomerDashboard() {
       const p = res.data;
 
       setProfile(p);
-
       setProfileForm({
         age: p?.age ?? "",
         gender: p?.gender ?? "",
@@ -186,19 +195,16 @@ export default function CustomerDashboard() {
         favorite_cuisine: p?.favorite_cuisine ?? "",
       });
 
-      // ✅ Convert backend order_history into editable rows
       const h = Array.isArray(p?.order_history) ? p.order_history : [];
-      if (h.length) {
-        setHistoryItems(
-          h.map((x) => ({
-            item: x.item || "",
-            price: x.price ?? "",
-            date: x.date || "",
-          })),
-        );
-      } else {
-        setHistoryItems([{ item: "", price: "", date: "" }]);
-      }
+      setHistoryItems(
+        h.length
+          ? h.map((x) => ({
+              item: x.item || "",
+              price: x.price ?? "",
+              date: x.date || "",
+            }))
+          : [{ item: "", price: "", date: "" }],
+      );
     } catch (err) {
       console.error(err);
       if (err?.response?.status === 404) {
@@ -323,7 +329,6 @@ export default function CustomerDashboard() {
             .filter(Boolean)
         : [];
 
-      // ✅ convert history rows to backend JSON array
       const order_history = historyItems
         .map((x) => ({
           item: String(x.item || "").trim(),
@@ -406,427 +411,502 @@ export default function CustomerDashboard() {
 
   return (
     <div className="customer-page">
-      <header className="customer-header">
-        <div>
-          <h2>Customer Dashboard</h2>
-          <p className="muted">
-            Welcome, <b>{user?.name}</b> • {user?.email}
-          </p>
-        </div>
+      <div className="page-shell">
+        <header className="customer-header">
+          <div>
+            <h2>Customer Dashboard</h2>
+            <p className="muted">
+              Welcome, <b>{user?.name}</b> • {user?.email}
+            </p>
+          </div>
 
-        <div className="header-actions">
-          <button
-            className="secondary"
-            onClick={() => {
-              clearAuth();
-              navigate("/login");
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      </header>
+          <div className="header-actions">
+            <button
+              className="secondary"
+              onClick={() => {
+                clearAuth();
+                navigate("/login");
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        </header>
 
-      <nav className="tabs">
-        {[
-          ["BROWSE", "Browse"],
-          ["RECOMMENDATIONS", "For You"],
-          ["CART", `Cart (${cart.length})`],
-          ["ORDERS", "Orders"],
-          ["PROFILE", "Profile"],
-        ].map(([key, label]) => (
-          <button
-            key={key}
-            className={tab === key ? "tab active" : "tab"}
-            onClick={() => setTab(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
+        <nav className="tabs">
+          {[
+            ["BROWSE", "Browse"],
+            ["RECOMMENDATIONS", "For You"],
+            ["CART", `Cart (${cart.length})`],
+            ["ORDERS", "Orders"],
+            ["PROFILE", "Profile"],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              className={tab === key ? "tab active" : "tab"}
+              onClick={() => setTab(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
 
-      {(error || busy) && (
-        <div className="status-row">
-          {busy ? <span className="pill">Loading…</span> : null}
-          {error ? <span className="pill error">{error}</span> : null}
-        </div>
-      )}
+        {(error || busy) && (
+          <div className="status-row">
+            {busy ? <span className="pill">Loading…</span> : null}
+            {error ? <span className="pill error">{error}</span> : null}
+          </div>
+        )}
 
-      {/* =================== BROWSE =================== */}
-      {tab === "BROWSE" && (
-        <div className="grid">
-          <section className="card">
-            <div className="card-head">
-              <h3>Restaurants</h3>
-              <div className="row">
-                <span className="muted">Cuisine</span>
-                <select
-                  value={selectedCuisine}
-                  onChange={(e) => setSelectedCuisine(e.target.value)}
-                >
-                  <option value="ALL">All</option>
-                  {allCuisines.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
+        {/* =================== BROWSE =================== */}
+        {tab === "BROWSE" && (
+          <div className="browse-layout">
+            {/* LEFT: RESTAURANTS */}
+            <section className="card panel">
+              <div className="panel-head">
+                <div>
+                  <h3>Restaurants</h3>
+                  <p className="muted small">
+                    Pick a restaurant to view menu and add items.
+                  </p>
+                </div>
+
+                <div className="filter">
+                  <label className="muted small">Cuisine</label>
+                  <select
+                    value={selectedCuisine}
+                    onChange={(e) => setSelectedCuisine(e.target.value)}
+                  >
+                    <option value="ALL">All</option>
+                    {allCuisines.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+
+              <div className="restaurant-grid">
+                {(restaurants || []).map((r) => {
+                  const img = pickImage(r);
+                  const isActive = selectedRestaurant?.id === r.id;
+                  return (
+                    <button
+                      key={r.id}
+                      className={isActive ? "r-card active" : "r-card"}
+                      onClick={async () => {
+                        setSelectedRestaurant(r);
+                        await loadMenu(r.id);
+                      }}
+                    >
+                      <div className="r-img">
+                        {img ? (
+                          <img src={img} alt={r.name} />
+                        ) : (
+                          <div className="img-ph">No image</div>
+                        )}
+                      </div>
+
+                      <div className="r-body">
+                        <div className="r-title">{r.name}</div>
+                        <div className="r-sub muted">
+                          {Array.isArray(r.cuisines) && r.cuisines.length
+                            ? r.cuisines.join(" • ")
+                            : "No cuisines"}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+
+                {!restaurants?.length && (
+                  <div className="empty muted">No restaurants found.</div>
+                )}
+              </div>
+            </section>
+
+            {/* RIGHT: MENU */}
+            <section className="card panel">
+              <div className="panel-head">
+                <div>
+                  <h3>Menu</h3>
+                  <p className="muted small">
+                    {selectedRestaurant
+                      ? `Menu for ${selectedRestaurant.name}`
+                      : "Select a restaurant to view items"}
+                  </p>
+                </div>
+
+                <div className="row">
+                  <button
+                    className="secondary"
+                    onClick={() =>
+                      selectedRestaurant && loadMenu(selectedRestaurant.id)
+                    }
+                    disabled={!selectedRestaurant}
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
+
+              {!selectedRestaurant ? (
+                <div className="empty muted">
+                  Select a restaurant on the left to view the menu.
+                </div>
+              ) : (
+                <div className="menu-grid">
+                  {(menu || []).map((m) => {
+                    const img = pickImage(m);
+                    const out = Number(m.stock) <= 0;
+                    return (
+                      <div key={m.id} className="m-card">
+                        <div className="m-img">
+                          {img ? (
+                            <img src={img} alt={m.name} />
+                          ) : (
+                            <div className="img-ph">No image</div>
+                          )}
+                          <span className={out ? "badge warn" : "badge ok"}>
+                            {out ? "Out of stock" : `Stock: ${m.stock}`}
+                          </span>
+                        </div>
+
+                        <div className="m-body">
+                          <div className="m-title">{m.name}</div>
+                          <div className="muted small">
+                            LKR {Number(m.price).toFixed(0)}
+                          </div>
+
+                          <button
+                            className="primary full"
+                            disabled={out}
+                            onClick={() => addToCart(m)}
+                          >
+                            Add to Cart
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {!menu?.length && (
+                    <div className="empty muted">No menu items available.</div>
+                  )}
+                </div>
+              )}
+            </section>
+          </div>
+        )}
+
+        {/* =================== RECOMMENDATIONS =================== */}
+        {tab === "RECOMMENDATIONS" && (
+          <section className="card panel">
+            <div className="panel-head">
+              <div>
+                <h3>Recommended for you</h3>
+                <p className="muted small">
+                  Based on your profile and order history.
+                </p>
+              </div>
+              <button className="secondary" onClick={loadRecommendations}>
+                Refresh
+              </button>
             </div>
 
-            <div className="list">
-              {(restaurants || []).map((r) => (
-                <button
-                  key={r.id}
-                  className={
-                    selectedRestaurant?.id === r.id
-                      ? "list-item active"
-                      : "list-item"
-                  }
-                  onClick={async () => {
-                    setSelectedRestaurant(r);
-                    await loadMenu(r.id);
-                  }}
-                >
-                  <div className="list-title">{r.name}</div>
-                  <div className="list-sub">
+            <div className="recs-grid">
+              {(recs || []).map((r) => (
+                <div key={r.id} className="rec-card">
+                  <div className="rec-title">{r.name}</div>
+                  <div className="muted small">
                     {Array.isArray(r.cuisines) && r.cuisines.length
                       ? r.cuisines.join(" • ")
                       : "No cuisines"}
                   </div>
-                </button>
+                  <button
+                    className="primary"
+                    onClick={async () => {
+                      setSelectedRestaurant(r);
+                      setTab("BROWSE");
+                      await loadMenu(r.id);
+                    }}
+                  >
+                    View Menu
+                  </button>
+                </div>
               ))}
-              {!restaurants?.length && (
-                <p className="muted">No restaurants found.</p>
+              {!recs?.length && (
+                <div className="empty muted">No recommendations yet.</div>
               )}
             </div>
           </section>
+        )}
 
-          <section className="card">
-            <div className="card-head">
-              <h3>Menu</h3>
-              <p className="muted">
-                {selectedRestaurant
-                  ? `Menu for ${selectedRestaurant.name}`
-                  : "Select a restaurant to view menu"}
-              </p>
-            </div>
-
-            {!selectedRestaurant ? (
-              <p className="muted">Pick a restaurant from the left side.</p>
-            ) : (
-              <div className="menu-grid">
-                {(menu || []).map((m) => (
-                  <div key={m.id} className="menu-item">
-                    <div className="menu-main">
-                      <div>
-                        <div className="menu-name">{m.name}</div>
-                        <div className="menu-meta muted">
-                          LKR {Number(m.price).toFixed(0)} • Stock: {m.stock}
-                        </div>
-                      </div>
-                      <button
-                        className="primary"
-                        disabled={Number(m.stock) <= 0}
-                        onClick={() => addToCart(m)}
-                      >
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {!menu?.length && (
-                  <p className="muted">No menu items available.</p>
-                )}
+        {/* =================== CART =================== */}
+        {tab === "CART" && (
+          <section className="card panel">
+            <div className="panel-head">
+              <div>
+                <h3>Your Cart</h3>
+                <p className="muted small">
+                  Review quantities and place your order.
+                </p>
               </div>
-            )}
-          </section>
-        </div>
-      )}
 
-      {/* =================== RECOMMENDATIONS =================== */}
-      {tab === "RECOMMENDATIONS" && (
-        <section className="card">
-          <div className="card-head">
-            <h3>Recommended for you</h3>
-            <button className="secondary" onClick={loadRecommendations}>
-              Refresh
-            </button>
-          </div>
-
-          <div className="recs">
-            {(recs || []).map((r) => (
-              <div key={r.id} className="rec-card">
-                <div className="rec-title">{r.name}</div>
-                <div className="muted">
-                  {Array.isArray(r.cuisines) && r.cuisines.length
-                    ? r.cuisines.join(" • ")
-                    : "No cuisines"}
-                </div>
+              <div className="row">
+                <button
+                  className="secondary"
+                  onClick={() => setCart([])}
+                  disabled={!cart.length}
+                >
+                  Clear
+                </button>
                 <button
                   className="primary"
-                  onClick={async () => {
-                    setSelectedRestaurant(r);
-                    setTab("BROWSE");
-                    await loadMenu(r.id);
-                  }}
+                  onClick={placeOrder}
+                  disabled={!cart.length || busy}
                 >
-                  View Menu
+                  Place Order
                 </button>
               </div>
-            ))}
-            {!recs?.length && <p className="muted">No recommendations yet.</p>}
-          </div>
-        </section>
-      )}
-
-      {/* =================== CART =================== */}
-      {tab === "CART" && (
-        <section className="card">
-          <div className="card-head">
-            <h3>Your Cart</h3>
-            <div className="row">
-              <button
-                className="secondary"
-                onClick={() => setCart([])}
-                disabled={!cart.length}
-              >
-                Clear
-              </button>
-              <button
-                className="primary"
-                onClick={placeOrder}
-                disabled={!cart.length || busy}
-              >
-                Place Order
-              </button>
             </div>
-          </div>
 
-          {!cart.length ? (
-            <p className="muted">Cart is empty. Add items from a menu.</p>
-          ) : (
-            <>
-              <div className="cart-list">
-                {cart.map((c) => (
-                  <div key={c.menuItemId} className="cart-row">
-                    <div>
-                      <div className="cart-title">{c.name}</div>
-                      <div className="muted">
-                        LKR {Number(c.price).toFixed(0)}
+            {!cart.length ? (
+              <div className="empty muted">
+                Cart is empty. Add items from a menu.
+              </div>
+            ) : (
+              <>
+                <div className="cart-list">
+                  {cart.map((c) => (
+                    <div key={c.menuItemId} className="cart-row">
+                      <div>
+                        <div className="cart-title">{c.name}</div>
+                        <div className="muted small">
+                          LKR {Number(c.price).toFixed(0)}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="row">
-                      <input
-                        className="qty"
-                        type="number"
-                        min={1}
-                        max={99}
-                        value={c.qty}
-                        onChange={(e) =>
-                          updateCartQty(c.menuItemId, e.target.value)
-                        }
-                      />
-                      <button
-                        className="danger"
-                        onClick={() => removeFromCart(c.menuItemId)}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="total">
-                <span>Total</span>
-                <b>LKR {Number(cartTotal).toFixed(0)}</b>
-              </div>
-            </>
-          )}
-        </section>
-      )}
-
-      {/* =================== ORDERS =================== */}
-      {tab === "ORDERS" && (
-        <section className="card">
-          <div className="card-head">
-            <h3>Order History</h3>
-            <button className="secondary" onClick={loadOrders}>
-              Refresh
-            </button>
-          </div>
-
-          <div className="orders">
-            {(orders || []).map((o) => (
-              <div key={o.id} className="order-card">
-                <div className="order-top">
-                  <div>
-                    <div className="order-id">{padOrderId(o.id)}</div>
-                    <div className="muted">
-                      {o?.restaurant?.name ? `${o.restaurant.name} • ` : ""}
-                      {o.created_at
-                        ? new Date(o.created_at).toLocaleString()
-                        : ""}
-                    </div>
-                  </div>
-                  <span
-                    className={`status ${String(o.status || "").toLowerCase()}`}
-                  >
-                    {o.status}
-                  </span>
-                </div>
-
-                <div className="order-items">
-                  {normalizeOrderItems(o.items).map((it, idx) => (
-                    <div key={`${o.id}-${idx}`} className="order-item">
-                      <span>{it.name}</span>
-                      <span className="muted">
-                        {it.qty} × LKR {Number(it.price).toFixed(0)}
-                      </span>
+                      <div className="row">
+                        <input
+                          className="qty"
+                          type="number"
+                          min={1}
+                          max={99}
+                          value={c.qty}
+                          onChange={(e) =>
+                            updateCartQty(c.menuItemId, e.target.value)
+                          }
+                        />
+                        <button
+                          className="danger"
+                          onClick={() => removeFromCart(c.menuItemId)}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
 
                 <div className="total">
                   <span>Total</span>
-                  <b>LKR {Number(o.total_amount || 0).toFixed(0)}</b>
+                  <b>LKR {Number(cartTotal).toFixed(0)}</b>
                 </div>
+              </>
+            )}
+          </section>
+        )}
+
+        {/* =================== ORDERS =================== */}
+        {tab === "ORDERS" && (
+          <section className="card panel">
+            <div className="panel-head">
+              <div>
+                <h3>Order History</h3>
+                <p className="muted small">Your recent orders and statuses.</p>
               </div>
-            ))}
-            {!orders?.length && <p className="muted">No orders yet.</p>}
-          </div>
-        </section>
-      )}
-
-      {/* =================== PROFILE =================== */}
-      {tab === "PROFILE" && (
-        <section className="card">
-          <div className="card-head">
-            <h3>My Profile</h3>
-            <button className="secondary" onClick={loadCustomerProfile}>
-              Reload
-            </button>
-          </div>
-
-          {profileError ? (
-            <div className="pill error">{profileError}</div>
-          ) : null}
-
-          <div className="form-grid">
-            <label>
-              Age
-              <input
-                type="number"
-                value={profileForm.age}
-                onChange={(e) =>
-                  setProfileForm((p) => ({ ...p, age: e.target.value }))
-                }
-              />
-            </label>
-
-            <label>
-              Gender
-              <select
-                value={profileForm.gender}
-                onChange={(e) =>
-                  setProfileForm((p) => ({ ...p, gender: e.target.value }))
-                }
-              >
-                <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-            </label>
-
-            <label>
-              Dietary Preferences (comma separated)
-              <input
-                value={profileForm.dietary_preferences}
-                onChange={(e) =>
-                  setProfileForm((p) => ({
-                    ...p,
-                    dietary_preferences: e.target.value,
-                  }))
-                }
-                placeholder="Halal, Non-Veg"
-              />
-            </label>
-
-            <label>
-              Favorite Cuisine
-              <input
-                value={profileForm.favorite_cuisine}
-                onChange={(e) =>
-                  setProfileForm((p) => ({
-                    ...p,
-                    favorite_cuisine: e.target.value,
-                  }))
-                }
-                placeholder="Sri Lankan"
-              />
-            </label>
-          </div>
-
-          {/* ✅ NEW NICE ORDER HISTORY UI */}
-          <div className="history-card">
-            <div className="history-head">
-              <h4>Order Preferences (History)</h4>
-              <button className="secondary" onClick={addHistoryRow}>
-                + Add Item
+              <button className="secondary" onClick={loadOrders}>
+                Refresh
               </button>
             </div>
 
-            <div className="history-list">
-              {historyItems.map((row, idx) => (
-                <div key={idx} className="history-row">
-                  <input
-                    placeholder="Item name (e.g., Red Curry Beef)"
-                    value={row.item}
-                    onChange={(e) =>
-                      updateHistoryField(idx, "item", e.target.value)
-                    }
-                  />
-                  <input
-                    type="number"
-                    placeholder="Price (LKR)"
-                    value={row.price}
-                    onChange={(e) =>
-                      updateHistoryField(idx, "price", e.target.value)
-                    }
-                  />
-                  <input
-                    type="date"
-                    value={row.date}
-                    onChange={(e) =>
-                      updateHistoryField(idx, "date", e.target.value)
-                    }
-                  />
-                  <button
-                    className="danger"
-                    onClick={() => removeHistoryRow(idx)}
-                  >
-                    ✕
-                  </button>
+            <div className="orders">
+              {(orders || []).map((o) => (
+                <div key={o.id} className="order-card">
+                  <div className="order-top">
+                    <div>
+                      <div className="order-id">{padOrderId(o.id)}</div>
+                      <div className="muted small">
+                        {o?.restaurant?.name ? `${o.restaurant.name} • ` : ""}
+                        {o.created_at
+                          ? new Date(o.created_at).toLocaleString()
+                          : ""}
+                      </div>
+                    </div>
+                    <span
+                      className={`status ${String(o.status || "").toLowerCase()}`}
+                    >
+                      {o.status}
+                    </span>
+                  </div>
+
+                  <div className="order-items">
+                    {normalizeOrderItems(o.items).map((it, idx) => (
+                      <div key={`${o.id}-${idx}`} className="order-item">
+                        <span>{it.name}</span>
+                        <span className="muted">
+                          {it.qty} × LKR {Number(it.price).toFixed(0)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="total">
+                    <span>Total</span>
+                    <b>LKR {Number(o.total_amount || 0).toFixed(0)}</b>
+                  </div>
                 </div>
               ))}
+              {!orders?.length && (
+                <div className="empty muted">No orders yet.</div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* =================== PROFILE =================== */}
+        {tab === "PROFILE" && (
+          <section className="card panel">
+            <div className="panel-head">
+              <div>
+                <h3>My Profile</h3>
+                <p className="muted small">
+                  Used for personalization and recommendations.
+                </p>
+              </div>
+              <button className="secondary" onClick={loadCustomerProfile}>
+                Reload
+              </button>
             </div>
 
-            <p className="muted small">
-              Add your past orders here (used for personalized recommendations).
-              Only complete rows (item + price + date) will be saved.
-            </p>
-          </div>
+            {profileError ? (
+              <div className="pill error">{profileError}</div>
+            ) : null}
 
-          <div className="row" style={{ marginTop: 12 }}>
-            <button className="primary" onClick={saveProfile} disabled={busy}>
-              Save Profile
-            </button>
-          </div>
-        </section>
-      )}
+            <div className="form-grid">
+              <label>
+                Age
+                <input
+                  type="number"
+                  value={profileForm.age}
+                  onChange={(e) =>
+                    setProfileForm((p) => ({ ...p, age: e.target.value }))
+                  }
+                />
+              </label>
+
+              <label>
+                Gender
+                <select
+                  value={profileForm.gender}
+                  onChange={(e) =>
+                    setProfileForm((p) => ({ ...p, gender: e.target.value }))
+                  }
+                >
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+
+              <label className="full">
+                Dietary Preferences (comma separated)
+                <input
+                  value={profileForm.dietary_preferences}
+                  onChange={(e) =>
+                    setProfileForm((p) => ({
+                      ...p,
+                      dietary_preferences: e.target.value,
+                    }))
+                  }
+                  placeholder="Halal, Non-Veg"
+                />
+              </label>
+
+              <label className="full">
+                Favorite Cuisine
+                <input
+                  value={profileForm.favorite_cuisine}
+                  onChange={(e) =>
+                    setProfileForm((p) => ({
+                      ...p,
+                      favorite_cuisine: e.target.value,
+                    }))
+                  }
+                  placeholder="Sri Lankan"
+                />
+              </label>
+            </div>
+
+            <div className="history-card">
+              <div className="history-head">
+                <h4>Order Preferences (History)</h4>
+                <button className="secondary" onClick={addHistoryRow}>
+                  + Add Item
+                </button>
+              </div>
+
+              <div className="history-list">
+                {historyItems.map((row, idx) => (
+                  <div key={idx} className="history-row">
+                    <input
+                      placeholder="Item name"
+                      value={row.item}
+                      onChange={(e) =>
+                        updateHistoryField(idx, "item", e.target.value)
+                      }
+                    />
+                    <input
+                      type="number"
+                      placeholder="Price (LKR)"
+                      value={row.price}
+                      onChange={(e) =>
+                        updateHistoryField(idx, "price", e.target.value)
+                      }
+                    />
+                    <input
+                      type="date"
+                      value={row.date}
+                      onChange={(e) =>
+                        updateHistoryField(idx, "date", e.target.value)
+                      }
+                    />
+                    <button
+                      className="danger"
+                      onClick={() => removeHistoryRow(idx)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <p className="muted small">
+                Only complete rows (item + price + date) will be saved.
+              </p>
+            </div>
+
+            <div className="row" style={{ marginTop: 12 }}>
+              <button className="primary" onClick={saveProfile} disabled={busy}>
+                Save Profile
+              </button>
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 }

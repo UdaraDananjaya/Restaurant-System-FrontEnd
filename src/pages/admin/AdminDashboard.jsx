@@ -31,6 +31,15 @@ ChartJS.register(
 const API_BASE =
   import.meta?.env?.VITE_API_URL?.replace(/\/$/, "") || "http://localhost:5000";
 
+const TABS = [
+  { key: "PENDING", label: "Pending Sellers" },
+  { key: "USERS", label: "Users" },
+  { key: "RESTAURANTS", label: "Restaurants" },
+  { key: "ORDERS", label: "Orders" },
+  { key: "ANALYTICS", label: "Analytics" },
+  { key: "LOGS", label: "Logs" },
+];
+
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("PENDING");
   const [darkMode, setDarkMode] = useState(true);
@@ -61,13 +70,8 @@ const AdminDashboard = () => {
 
   const normalizeStatus = (status, role) => {
     const s = (status || "").toString().trim().toUpperCase();
-
-    // Seller default to PENDING if missing
     if (role === "SELLER" && !s) return "PENDING";
-
-    // Customers/Admins default to APPROVED if missing
     if (!s) return "APPROVED";
-
     return s;
   };
 
@@ -109,7 +113,7 @@ const AdminDashboard = () => {
   };
 
   const renderStatusBadge = (status) => (
-    <span className={`status-badge ${String(status || "").toLowerCase()}`}>
+    <span className={`ad-badge ${String(status || "").toLowerCase()}`}>
       {status}
     </span>
   );
@@ -119,7 +123,6 @@ const AdminDashboard = () => {
   const loadAll = async () => {
     setLoading(true);
     try {
-      // Always required
       const u = await safeGet("/admin/users", []);
       const normalizedUsers = (u || []).map((user) => ({
         ...user,
@@ -127,7 +130,6 @@ const AdminDashboard = () => {
       }));
       setUsers(normalizedUsers);
 
-      // Optional endpoints (won’t break if missing)
       const r = await safeGet("/admin/restaurants", []);
       const o = await safeGet("/admin/orders", []);
       const f = await safeGet("/admin/fast-moving-restaurants", []);
@@ -140,7 +142,6 @@ const AdminDashboard = () => {
       setOrders(Array.isArray(o) ? o : []);
       setFastMoving(Array.isArray(f) ? f : []);
 
-      // ✅ chart must be in ChartJS shape {labels, datasets}
       const validChart =
         uc &&
         typeof uc === "object" &&
@@ -179,7 +180,6 @@ const AdminDashboard = () => {
   const downloadCSV = async (endpoint, filename) => {
     try {
       const token = localStorage.getItem("token");
-
       const response = await fetch(`${API_BASE}/api/admin/${endpoint}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -304,432 +304,478 @@ const AdminDashboard = () => {
     );
   }, [logs, logSearch]);
 
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: true } },
+  };
+
   if (loading) {
-    return <p style={{ color: "white" }}>Loading admin dashboard...</p>;
+    return (
+      <div className={`ad-shell ${darkMode ? "dark" : "light"}`}>
+        <div className="ad-wrap">
+          <div className="ad-loading">Loading admin dashboard…</div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className={`admin-container ${darkMode ? "dark" : "light"}`}>
-      {/* ================= HEADER ================= */}
-      <div className="admin-header">
-        <h1>Admin Dashboard</h1>
+    <div className={`ad-shell ${darkMode ? "dark" : "light"}`}>
+      <div className="ad-wrap">
+        {/* ================= HEADER ================= */}
+        <div className="ad-top">
+          <div className="ad-title">
+            <h1>Admin Dashboard</h1>
+            <p className="ad-subtitle">
+              Manage users, restaurants, orders & analytics
+            </p>
+          </div>
 
-        <div className="admin-right">
-          <button
-            className="mode-toggle"
-            onClick={() => setDarkMode(!darkMode)}
-          >
-            {darkMode ? "☀ Light" : "🌙 Dark"}
-          </button>
-
-          <div className="profile-box">
-            <div
-              className="profile-avatar"
-              onClick={() => setShowProfile(!showProfile)}
-              title="Profile"
+          <div className="ad-actions">
+            <button
+              className="ad-btn ad-btn-primary"
+              onClick={() => setDarkMode(!darkMode)}
             >
-              {adminName?.charAt(0)?.toUpperCase()}
-            </div>
+              {darkMode ? "☀ Light" : "🌙 Dark"}
+            </button>
 
-            {showProfile && (
-              <div className="profile-dropdown">
-                <p>
-                  <strong>{adminName}</strong>
-                </p>
+            <div className="ad-profile">
+              <button
+                className="ad-avatar"
+                onClick={() => setShowProfile((v) => !v)}
+                title="Profile"
+              >
+                {adminName?.charAt(0)?.toUpperCase()}
+              </button>
+
+              {showProfile && (
+                <div className="ad-profile-menu">
+                  <div className="ad-profile-meta">
+                    <strong>{adminName}</strong>
+                    <span className="ad-profile-role">Administrator</span>
+                  </div>
+                  <button
+                    className="ad-btn ad-btn-danger w-full"
+                    onClick={() => {
+                      localStorage.clear();
+                      window.location.href = "/";
+                    }}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {successMsg && <div className="ad-alert success">✅ {successMsg}</div>}
+        {errorMsg && <div className="ad-alert error">❌ {errorMsg}</div>}
+
+        {/* ================= KPI SUMMARY ================= */}
+        <div className="ad-kpis">
+          <div className="ad-kpi">
+            <span>Total Users</span>
+            <strong>
+              <CountUp
+                end={stats.totalUsers || users.length || 0}
+                duration={1.1}
+              />
+            </strong>
+          </div>
+          <div className="ad-kpi">
+            <span>Sellers</span>
+            <strong>
+              <CountUp end={sellers.length} duration={1.1} />
+            </strong>
+          </div>
+          <div className="ad-kpi">
+            <span>Customers</span>
+            <strong>
+              <CountUp end={customers.length} duration={1.1} />
+            </strong>
+          </div>
+          <div className="ad-kpi">
+            <span>Restaurants</span>
+            <strong>
+              <CountUp
+                end={stats.totalRestaurants || restaurants.length || 0}
+                duration={1.1}
+              />
+            </strong>
+          </div>
+          <div className="ad-kpi">
+            <span>Orders</span>
+            <strong>
+              <CountUp
+                end={stats.totalOrders || orders.length || 0}
+                duration={1.1}
+              />
+            </strong>
+          </div>
+        </div>
+
+        {/* ================= TABS BAR (PROPER LINE) ================= */}
+        <div className="ad-tabsbar">
+          <div className="ad-tabs" role="tablist" aria-label="Admin tabs">
+            {TABS.map((t) => (
+              <button
+                key={t.key}
+                className={`ad-tab ${activeTab === t.key ? "active" : ""}`}
+                onClick={() => setActiveTab(t.key)}
+                role="tab"
+                aria-selected={activeTab === t.key}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Right side quick actions (optional but looks pro) */}
+          <div className="ad-tabs-right">
+            <button className="ad-btn ad-btn-ghost" onClick={loadAll}>
+              ↻ Refresh
+            </button>
+          </div>
+        </div>
+
+        {/* ================= PANEL ================= */}
+        <div className="ad-panel">
+          {/* PENDING */}
+          {activeTab === "PENDING" && (
+            <>
+              <div className="ad-panel-head">
+                <h2>Pending Seller Requests</h2>
+                <span className="ad-chip">{pendingSellers.length} pending</span>
+              </div>
+
+              {pendingSellers.length === 0 && (
+                <div className="ad-empty">No pending sellers.</div>
+              )}
+
+              {pendingSellers.map((s) => (
+                <div key={s.id} className="ad-row">
+                  <div className="ad-row-main">
+                    <div className="ad-row-title">{s.email}</div>
+                    <div className="ad-row-meta">
+                      {renderStatusBadge(s.status)}
+                    </div>
+                  </div>
+
+                  <div className="ad-row-actions">
+                    <button
+                      className="ad-btn ad-btn-success"
+                      disabled={approvingId === s.id}
+                      onClick={() => approveSeller(s.id)}
+                    >
+                      {approvingId === s.id ? "Approving…" : "Approve"}
+                    </button>
+                    <button
+                      className="ad-btn ad-btn-danger"
+                      onClick={() => rejectSeller(s.id)}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          {/* USERS */}
+          {activeTab === "USERS" && (
+            <>
+              <div className="ad-panel-head">
+                <h2>All Users</h2>
+                <div className="ad-inline-actions">
+                  <button
+                    className="ad-btn ad-btn-ghost"
+                    onClick={() => downloadCSV("export/users", "users.csv")}
+                  >
+                    Export Users CSV
+                  </button>
+                  <button
+                    className="ad-btn ad-btn-ghost"
+                    onClick={() => downloadCSV("export/logs", "admin_logs.csv")}
+                  >
+                    Export Logs CSV
+                  </button>
+                </div>
+              </div>
+
+              <div className="ad-filters">
+                <input
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Search users by email, name, role, status…"
+                />
+              </div>
+
+              {filteredUsers.length === 0 && (
+                <div className="ad-empty">No users found.</div>
+              )}
+
+              {filteredUsers.map((u) => (
+                <div key={u.id} className="ad-row">
+                  <div className="ad-row-main">
+                    <div className="ad-row-title">
+                      {u.email} <span className="ad-muted">— {u.role}</span>
+                    </div>
+                    <div className="ad-row-meta">
+                      {renderStatusBadge(u.status)}
+                    </div>
+                  </div>
+
+                  <div className="ad-row-actions">
+                    {(u.status === "APPROVED" || u.status === "PENDING") && (
+                      <button
+                        disabled={statusChangingId === u.id}
+                        className="ad-btn ad-btn-warn"
+                        onClick={() => suspendUser(u.id)}
+                      >
+                        {statusChangingId === u.id ? "Updating…" : "Suspend"}
+                      </button>
+                    )}
+
+                    {u.status === "SUSPENDED" && (
+                      <button
+                        disabled={statusChangingId === u.id}
+                        className="ad-btn ad-btn-success"
+                        onClick={() => reactivateUser(u.id)}
+                      >
+                        {statusChangingId === u.id ? "Updating…" : "Reactivate"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          {/* RESTAURANTS */}
+          {activeTab === "RESTAURANTS" && (
+            <>
+              <div className="ad-panel-head">
+                <h2>Restaurant Listings</h2>
                 <button
-                  onClick={() => {
-                    localStorage.clear();
-                    window.location.href = "/";
-                  }}
+                  className="ad-btn ad-btn-ghost"
+                  onClick={() =>
+                    downloadCSV("export/restaurants", "restaurants.csv")
+                  }
                 >
-                  Logout
+                  Export Restaurants CSV
                 </button>
               </div>
-            )}
-          </div>
-        </div>
-      </div>
 
-      {successMsg && <div className="success-box">✅ {successMsg}</div>}
-      {errorMsg && <div className="error-box">❌ {errorMsg}</div>}
-
-      {/* ================= KPI SUMMARY ================= */}
-      <div className="summary-grid">
-        <div className="card">
-          <span>Total Users</span>
-          <strong>
-            <CountUp
-              end={stats.totalUsers || users.length || 0}
-              duration={1.2}
-            />
-          </strong>
-        </div>
-
-        <div className="card">
-          <span>Sellers</span>
-          <strong>
-            <CountUp end={sellers.length} duration={1.2} />
-          </strong>
-        </div>
-
-        <div className="card">
-          <span>Customers</span>
-          <strong>
-            <CountUp end={customers.length} duration={1.2} />
-          </strong>
-        </div>
-
-        <div className="card">
-          <span>Restaurants</span>
-          <strong>
-            <CountUp
-              end={stats.totalRestaurants || restaurants.length || 0}
-              duration={1.2}
-            />
-          </strong>
-        </div>
-
-        <div className="card">
-          <span>Orders</span>
-          <strong>
-            <CountUp
-              end={stats.totalOrders || orders.length || 0}
-              duration={1.2}
-            />
-          </strong>
-        </div>
-      </div>
-
-      {/* ================= TABS ================= */}
-      <div className="tabs">
-        {[
-          { key: "PENDING", label: "Pending Sellers" },
-          { key: "USERS", label: "Users" },
-          { key: "RESTAURANTS", label: "Restaurants" },
-          { key: "ORDERS", label: "Orders" },
-          { key: "ANALYTICS", label: "Analytics" },
-          { key: "LOGS", label: "Logs" },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            className={activeTab === tab.key ? "active" : ""}
-            onClick={() => setActiveTab(tab.key)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ================= TAB CONTENT ================= */}
-      <div className="tab-content">
-        {/* PENDING SELLERS */}
-        {activeTab === "PENDING" && (
-          <>
-            <h2>Pending Seller Requests</h2>
-
-            {pendingSellers.length === 0 && <p>No pending sellers.</p>}
-
-            {pendingSellers.map((s) => (
-              <div key={s.id} className="row">
-                <span>
-                  {s.email} {renderStatusBadge(s.status)}
-                </span>
-
-                <div>
-                  <button
-                    disabled={approvingId === s.id}
-                    onClick={() => approveSeller(s.id)}
-                  >
-                    {approvingId === s.id ? "Approving..." : "Approve"}
-                  </button>
-
-                  <button
-                    style={{ marginLeft: "10px", background: "#dc2626" }}
-                    onClick={() => rejectSeller(s.id)}
-                  >
-                    Reject
-                  </button>
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* USERS */}
-        {activeTab === "USERS" && (
-          <>
-            <h2>All Users</h2>
-
-            <div className="export-buttons">
-              <button onClick={() => downloadCSV("export/users", "users.csv")}>
-                Export Users CSV
-              </button>
-              <button
-                onClick={() => downloadCSV("export/logs", "admin_logs.csv")}
-              >
-                Export Logs CSV
-              </button>
-            </div>
-
-            <div style={{ marginBottom: 12 }}>
-              <input
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                placeholder="Search users by email, name, role, status..."
-              />
-            </div>
-
-            {filteredUsers.length === 0 && <p>No users found.</p>}
-
-            {filteredUsers.map((u) => (
-              <div key={u.id} className="row">
-                <span>
-                  {u.email} — {u.role} {renderStatusBadge(u.status)}
-                </span>
-
-                <div>
-                  {(u.status === "APPROVED" || u.status === "PENDING") && (
-                    <button
-                      disabled={statusChangingId === u.id}
-                      style={{ background: "#f59e0b", marginLeft: 10 }}
-                      onClick={() => suspendUser(u.id)}
-                    >
-                      {statusChangingId === u.id ? "Updating..." : "Suspend"}
-                    </button>
-                  )}
-
-                  {u.status === "SUSPENDED" && (
-                    <button
-                      disabled={statusChangingId === u.id}
-                      style={{ background: "#16a34a", marginLeft: 10 }}
-                      onClick={() => reactivateUser(u.id)}
-                    >
-                      {statusChangingId === u.id ? "Updating..." : "Reactivate"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* RESTAURANTS */}
-        {activeTab === "RESTAURANTS" && (
-          <>
-            <h2>Restaurant Listings</h2>
-
-            <button
-              onClick={() =>
-                downloadCSV("export/restaurants", "restaurants.csv")
-              }
-              style={{ marginBottom: "15px" }}
-            >
-              Export Restaurants CSV
-            </button>
-
-            <div style={{ marginBottom: 12 }}>
-              <input
-                value={restaurantSearch}
-                onChange={(e) => setRestaurantSearch(e.target.value)}
-                placeholder="Search restaurants by name, seller email, address..."
-              />
-            </div>
-
-            {filteredRestaurants.length === 0 ? (
-              <p>
-                No restaurants loaded. (If backend endpoint{" "}
-                <code>/admin/restaurants</code> is missing, it will stay empty.)
-              </p>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Restaurant</th>
-                    <th>Seller</th>
-                    <th>Contact</th>
-                    <th>Address</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredRestaurants.map((r) => (
-                    <tr key={r.id}>
-                      <td>{r.id}</td>
-                      <td>{r.name || r.restaurantName}</td>
-                      <td>{r.sellerEmail || r.seller_id}</td>
-                      <td>{r.contact_number || "-"}</td>
-                      <td>{r.address || "-"}</td>
-                      <td>{renderStatusBadge(r.status || "ACTIVE")}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
-        )}
-
-        {/* ORDERS */}
-        {activeTab === "ORDERS" && (
-          <>
-            <h2>All Orders</h2>
-
-            <button
-              onClick={() => downloadCSV("export/orders", "orders.csv")}
-              style={{ marginBottom: "15px" }}
-            >
-              Export Orders CSV
-            </button>
-
-            {orders.length === 0 ? (
-              <p>
-                No orders loaded. (If backend endpoint{" "}
-                <code>/admin/orders</code> is missing, it will stay empty.)
-              </p>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Status</th>
-                    <th>Customer</th>
-                    <th>Seller</th>
-                    <th>Restaurant</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map((o) => (
-                    <tr key={o.id}>
-                      <td>{o.id}</td>
-                      <td>{renderStatusBadge(o.status)}</td>
-                      <td>{o.customerEmail || "-"}</td>
-                      <td>{o.sellerEmail || "-"}</td>
-                      <td>{o.restaurantName || "-"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
-        )}
-
-        {/* ANALYTICS */}
-        {activeTab === "ANALYTICS" && (
-          <div className="analytics-grid">
-            <div className="chart-box">
-              <h2>User Distribution</h2>
-              {userChart ? (
-                <Pie data={userChart} />
-              ) : (
-                <p>
-                  No user distribution data. (Backend endpoint{" "}
-                  <code>/admin/user-distribution</code> not available.)
-                </p>
-              )}
-            </div>
-
-            <div className="chart-box bar-chart">
-              <h2>Fast-Moving Restaurants</h2>
-              {fastMoving.length > 0 ? (
-                <Bar
-                  data={{
-                    labels: fastMoving.map((f) => f.restaurant),
-                    datasets: [
-                      {
-                        label: "Orders",
-                        data: fastMoving.map((f) => f.orders),
-                        backgroundColor: "#2563eb",
-                      },
-                    ],
-                  }}
+              <div className="ad-filters">
+                <input
+                  value={restaurantSearch}
+                  onChange={(e) => setRestaurantSearch(e.target.value)}
+                  placeholder="Search restaurants by name, seller email, address…"
                 />
+              </div>
+
+              {filteredRestaurants.length === 0 ? (
+                <div className="ad-empty">No restaurants loaded.</div>
               ) : (
-                <p>
-                  No fast-moving restaurant data. (Backend endpoint{" "}
-                  <code>/admin/fast-moving-restaurants</code> not available.)
-                </p>
+                <div className="ad-table-wrap">
+                  <table className="ad-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Restaurant</th>
+                        <th>Seller</th>
+                        <th>Contact</th>
+                        <th>Address</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredRestaurants.map((r) => (
+                        <tr key={r.id}>
+                          <td>{r.id}</td>
+                          <td>{r.name || r.restaurantName}</td>
+                          <td>{r.sellerEmail || r.seller_id}</td>
+                          <td>{r.contact_number || "-"}</td>
+                          <td>{r.address || "-"}</td>
+                          <td>{renderStatusBadge(r.status || "ACTIVE")}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
-            </div>
-          </div>
-        )}
+            </>
+          )}
 
-        {/* LOGS */}
-        {activeTab === "LOGS" && (
-          <>
-            <h2>Administrative Logs</h2>
+          {/* ORDERS */}
+          {activeTab === "ORDERS" && (
+            <>
+              <div className="ad-panel-head">
+                <h2>All Orders</h2>
+                <button
+                  className="ad-btn ad-btn-ghost"
+                  onClick={() => downloadCSV("export/orders", "orders.csv")}
+                >
+                  Export Orders CSV
+                </button>
+              </div>
 
-            <div className="export-buttons">
-              <button
-                onClick={() => downloadCSV("export/logs", "admin_logs.csv")}
-              >
-                Export Logs CSV
-              </button>
-            </div>
+              {orders.length === 0 ? (
+                <div className="ad-empty">No orders loaded.</div>
+              ) : (
+                <div className="ad-table-wrap">
+                  <table className="ad-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Status</th>
+                        <th>Customer</th>
+                        <th>Seller</th>
+                        <th>Restaurant</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders.map((o) => (
+                        <tr key={o.id}>
+                          <td>{o.id}</td>
+                          <td>{renderStatusBadge(o.status)}</td>
+                          <td>{o.customerEmail || "-"}</td>
+                          <td>{o.sellerEmail || "-"}</td>
+                          <td>{o.restaurantName || "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
 
-            <div style={{ marginBottom: 12 }}>
-              <input
-                value={logSearch}
-                onChange={(e) => setLogSearch(e.target.value)}
-                placeholder="Search logs by action, admin email, target..."
-              />
-            </div>
+          {/* ANALYTICS */}
+          {activeTab === "ANALYTICS" && (
+            <>
+              <div className="ad-panel-head">
+                <h2>Analytics</h2>
+                <span className="ad-muted">Charts & trends</span>
+              </div>
 
-            {filteredLogs.length === 0 ? (
-              <p>
-                No logs loaded. (If backend endpoint <code>/admin/logs</code> is
-                missing, this stays empty.)
-              </p>
-            ) : (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>Action</th>
-                    <th>Admin</th>
-                    <th>Target</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLogs.map((l, idx) => (
-                    <tr key={l.id || idx}>
-                      <td>{l.createdAt || l.created_at || "-"}</td>
-                      <td>{l.action || "-"}</td>
-                      <td>{l.admin_email || l.adminEmail || "-"}</td>
-                      <td>{l.target || l.target_email || "-"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </>
-        )}
-      </div>
+              <div className="ad-analytics-grid">
+                <div className="ad-chart-card">
+                  <div className="ad-chart-title">User Distribution</div>
+                  <div className="ad-chart-area">
+                    {userChart ? (
+                      <Pie data={userChart} options={chartOptions} />
+                    ) : (
+                      <div className="ad-empty">No user distribution data.</div>
+                    )}
+                  </div>
+                </div>
 
-      {/* ================= REVENUE TREND ================= */}
-      <div className="chart-box">
-        <h2>Monthly Revenue Trend</h2>
+                <div className="ad-chart-card">
+                  <div className="ad-chart-title">Fast-Moving Restaurants</div>
+                  <div className="ad-chart-area">
+                    {fastMoving.length > 0 ? (
+                      <Bar
+                        options={chartOptions}
+                        data={{
+                          labels: fastMoving.map((f) => f.restaurant),
+                          datasets: [
+                            {
+                              label: "Orders",
+                              data: fastMoving.map((f) => f.orders),
+                            },
+                          ],
+                        }}
+                      />
+                    ) : (
+                      <div className="ad-empty">
+                        No fast-moving restaurant data.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-        {revenueTrend.length > 0 ? (
-          <Line
-            data={{
-              labels: revenueTrend.map((r) => r.month),
-              datasets: [
-                {
-                  label: "Revenue",
-                  data: revenueTrend.map((r) => r.revenue),
-                  borderColor: "#16a34a",
-                  backgroundColor: "rgba(22,163,74,0.2)",
-                  tension: 0.4,
-                },
-              ],
-            }}
-          />
-        ) : (
-          <p>
-            No revenue trend data. (Backend endpoint{" "}
-            <code>/admin/revenue-trend</code> not available.)
-          </p>
-        )}
+              <div className="ad-chart-card ad-chart-wide">
+                <div className="ad-chart-title">Monthly Revenue Trend</div>
+                <div className="ad-chart-area">
+                  {revenueTrend.length > 0 ? (
+                    <Line
+                      options={chartOptions}
+                      data={{
+                        labels: revenueTrend.map((r) => r.month),
+                        datasets: [
+                          {
+                            label: "Revenue",
+                            data: revenueTrend.map((r) => r.revenue),
+                            tension: 0.35,
+                          },
+                        ],
+                      }}
+                    />
+                  ) : (
+                    <div className="ad-empty">
+                      No revenue trend data. (Backend endpoint{" "}
+                      <code>/admin/revenue-trend</code> not available.)
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* LOGS */}
+          {activeTab === "LOGS" && (
+            <>
+              <div className="ad-panel-head">
+                <h2>Administrative Logs</h2>
+                <button
+                  className="ad-btn ad-btn-ghost"
+                  onClick={() => downloadCSV("export/logs", "admin_logs.csv")}
+                >
+                  Export Logs CSV
+                </button>
+              </div>
+
+              <div className="ad-filters">
+                <input
+                  value={logSearch}
+                  onChange={(e) => setLogSearch(e.target.value)}
+                  placeholder="Search logs by action, admin email, target…"
+                />
+              </div>
+
+              {filteredLogs.length === 0 ? (
+                <div className="ad-empty">No logs loaded.</div>
+              ) : (
+                <div className="ad-table-wrap">
+                  <table className="ad-table">
+                    <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>Action</th>
+                        <th>Admin</th>
+                        <th>Target</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredLogs.map((l, idx) => (
+                        <tr key={l.id || idx}>
+                          <td>{l.createdAt || l.created_at || "-"}</td>
+                          <td>{l.action || "-"}</td>
+                          <td>{l.admin_email || l.adminEmail || "-"}</td>
+                          <td>{l.target || l.target_email || "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
