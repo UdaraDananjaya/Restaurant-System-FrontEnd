@@ -368,11 +368,23 @@ export default function SellerDashboard() {
 
   const lineData = useMemo(() => {
     return {
-      labels: forecast.map((f, i) => f.day || `Day ${i + 1}`),
+      labels: forecast.map((f, i) => {
+        // Handle both objects (with day/value) and raw numbers
+        if (typeof f === "object") {
+          return f.day || `Day ${i + 1}`;
+        }
+        return `Day ${i + 1}`;
+      }),
       datasets: [
         {
           label: "Expected Orders",
-          data: forecast.map((f) => Number(f.orders ?? f.value ?? 0)),
+          data: forecast.map((f) => {
+            // Handle both objects and raw numbers
+            if (typeof f === "object") {
+              return Number(f.forecast ?? f.value ?? 0);
+            }
+            return Number(f ?? 0);
+          }),
           tension: 0.35,
         },
       ],
