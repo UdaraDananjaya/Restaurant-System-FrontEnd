@@ -168,7 +168,7 @@ export default function CustomerDashboard() {
     setBusy(true);
     setError(null);
     try {
-      const res = await api.get("/customer/recommendations?limit=6");
+      const res = await api.get("/customer/recommendations");
       setRecs(res.data?.recommended || []);
     } catch (err) {
       console.error(err);
