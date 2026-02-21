@@ -53,13 +53,27 @@ const safeImageUrl = (path) => {
 };
 
 const normalizeOrderItems = (o) => {
-  const items =
-    o?.items || o?.order_items || o?.orderItems || o?.details || o?.cart || [];
+  let items =
+      o?.items || o?.order_items || o?.orderItems || o?.details || o?.cart || [];
+
+  // ✅ HANDLE STRING JSON
+  if (typeof items === "string") {
+    try {
+      items = JSON.parse(items);
+    } catch (e) {
+      console.warn("Failed to parse order items:", e);
+      return [];
+    }
+  }
+
   if (!Array.isArray(items)) return [];
+
   return items.map((it) => ({
     name: it?.name || it?.menuItem?.name || it?.item_name || "Item",
     qty: Number(it?.qty ?? it?.quantity ?? it?.count ?? 1),
-    price: Number(it?.price ?? it?.unit_price ?? it?.menuItem?.price ?? 0),
+    price: Number(
+        it?.price ?? it?.unit_price ?? it?.menuItem?.price ?? 0
+    ),
   }));
 };
 
@@ -610,8 +624,8 @@ export default function SellerDashboard() {
                       {o?.customer?.name || o?.customer?.email || "Customer"}
                     </div>
                   </div>
-                  <div className="right">
-                    <span className={statusColorClass(o.status)}>
+                  <div className="right" >
+                    <span style={{ margin: 10 }} className={statusColorClass(o.status)}>
                       {o.status}
                     </span>
                     <div className="muted">{money(o.total_amount)}</div>
@@ -846,7 +860,7 @@ export default function SellerDashboard() {
                     </div>
 
                     <div className="order-right">
-                      <div className="order-total">{money(o.total_amount)}</div>
+                      <div style={{margin:30}} className="order-total">{money(o.total_amount)}</div>
 
                       <select
                         className="status-select"
