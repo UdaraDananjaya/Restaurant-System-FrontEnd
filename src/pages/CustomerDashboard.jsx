@@ -32,7 +32,7 @@ export default function CustomerDashboard() {
 
   const [cart, setCart] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [recs, setRecs] = useState([]);
+  const [recs, setRecs] = useState([]); // Raw recommendations from API
 
   const [profile, setProfile] = useState(null);
   const [profileForm, setProfileForm] = useState({
@@ -169,6 +169,7 @@ export default function CustomerDashboard() {
     setError(null);
     try {
       const res = await api.get("/customer/recommendations");
+      // Store raw recommendations (strings or objects)
       setRecs(res.data?.recommended || []);
     } catch (err) {
       console.error(err);
@@ -616,26 +617,41 @@ export default function CustomerDashboard() {
             </div>
 
             <div className="recs-grid">
-              {(recs || []).map((r) => (
-                <div key={r.id} className="rec-card">
-                  <div className="rec-title">{r.name}</div>
-                  <div className="muted small">
-                    {Array.isArray(r.cuisines) && r.cuisines.length
-                      ? r.cuisines.join(" • ")
-                      : "No cuisines"}
+              {(recs || []).map((r, idx) => {
+                // Handle both string names and restaurant objects
+                const isString = typeof r === "string";
+                const restaurantObj = isString
+                  ? restaurants.find((rest) => rest.name === r)
+                  : r;
+                const name = isString ? r : r.name;
+                const id = restaurantObj?.id || idx;
+
+                return (
+                  <div key={id} className="rec-card">
+                    <div className="rec-title">{name}</div>
+                    <div className="muted small">
+                      {restaurantObj && Array.isArray(restaurantObj.cuisines) && restaurantObj.cuisines.length
+                        ? restaurantObj.cuisines.join(" • ")
+                        : "No cuisines"}
+                    </div>
+                    <button
+                      className="primary"
+                      onClick={async () => {
+                        if (restaurantObj) {
+                          setSelectedRestaurant(restaurantObj);
+                          setTab("BROWSE");
+                          await loadMenu(restaurantObj.id);
+                        } else {
+                          alert("Restaurant details not found");
+                        }
+                      }}
+                      disabled={!restaurantObj}
+                    >
+                      View Menu
+                    </button>
                   </div>
-                  <button
-                    className="primary"
-                    onClick={async () => {
-                      setSelectedRestaurant(r);
-                      setTab("BROWSE");
-                      await loadMenu(r.id);
-                    }}
-                  >
-                    View Menu
-                  </button>
-                </div>
-              ))}
+                );
+              })}
               {!recs?.length && (
                 <div className="empty muted">No recommendations yet.</div>
               )}
